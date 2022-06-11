@@ -432,6 +432,7 @@ public class Main extends JFrame implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (timesUpClose == 60000) {
+				JOptionPane.showMessageDialog(null, "Session ended due to inactivity");
 				clip.stop();
 				restTimer.stop();
 				restFrame.setVisible(false);

@@ -6,6 +6,8 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -14,6 +16,11 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -26,7 +33,7 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 
-import com.mysql.jdbc.Connection;;
+import com.mysql.jdbc.Connection;
 
 public class Main extends JFrame implements ActionListener {
 	private JTextField courseField;
@@ -183,7 +190,7 @@ public class Main extends JFrame implements ActionListener {
 
 	public void init() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 375, 531);
+		setBounds(100, 100, 364, 531);
 
 		createTabbedPane();
 	}
@@ -227,7 +234,7 @@ public class Main extends JFrame implements ActionListener {
 		platformBox.setSelectedItem("None");
 		subjectBox.setSelectedItem("None");
 		languageBox.setSelectedItem("None");
-		titleField.setText("");
+		courseField.setText("");
 	}
 
 	void pause() {
@@ -261,7 +268,7 @@ public class Main extends JFrame implements ActionListener {
 		restTime = 0;
 		restMinute = 0;
 		restSecond = 0;
-
+		timesUpClose = 0;
 	}
 
 	String pauseDur;
@@ -336,7 +343,8 @@ public class Main extends JFrame implements ActionListener {
 	int restTime = 0;
 	int restMinute = 0;
 	int restSecond = 0;
-
+	int timesUpClose = 50000; // increments when JOPtionPaneDialog is opened, will wait for user input, and if
+								// a minute has passed and no input from the user, automatic stop session
 	boolean started = false;
 	String restSecString = String.format("%02d", restSecond);
 	String restMinString = String.format("%02d", restMinute);
@@ -372,25 +380,66 @@ public class Main extends JFrame implements ActionListener {
 			restLabel.setText("00" + ":0" + restMinute + ":" + restSecond);
 
 			if (restTime <= 0) {
+				File file = new File(
+						"C:\\Users\\jacob\\git\\habittracker\\Habit_Tracker\\src\\Danger Alarm Meme Sound Effect.wav");
+				AudioInputStream audioStream;
+				try {
+					audioStream = AudioSystem.getAudioInputStream(file);
+					clip = AudioSystem.getClip();
+					clip.open(audioStream);
+				} catch (UnsupportedAudioFileException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (LineUnavailableException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+				timesUp.start();
+				clip.loop(Clip.LOOP_CONTINUOUSLY);
+				int response = 1;
+
 				Object[] options = { "OK" };
-				int response = JOptionPane.showOptionDialog(restFrame, "No more rest time remaining", "Time's up!",
+				response = JOptionPane.showOptionDialog(restFrame, "No more rest time remaining", "Time's up!",
 						JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-				if (response == JOptionPane.CLOSED_OPTION || response == JOptionPane.OK_OPTION) {
+				if (response == JOptionPane.OK_OPTION) {
+
+					clip.stop();
 					restFrame.setVisible(false);
 					restTimer.stop();
 					timer.start();
+					clip.stop();
 				}
 
 			}
 
 		}
 	});
+	Clip clip;
 	JFrame restFrame;
 	Timer pauseTimer = new Timer(1000, new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
 			pauseDuration = pauseDuration + 1000;
+
+		}
+	});
+	Timer timesUp = new Timer(1000, new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (timesUpClose == 60000) {
+				clip.stop();
+				restTimer.stop();
+				restFrame.setVisible(false);
+				timer.stop();
+				stop();
+				timesUp.stop();
+			}
+			timesUpClose += 1000;
 
 		}
 	});

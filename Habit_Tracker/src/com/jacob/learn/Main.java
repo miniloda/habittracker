@@ -107,9 +107,7 @@ public class Main extends JFrame implements ActionListener {
 		timeLabel.setFont(new Font("Verdana", Font.PLAIN, 35));
 		timeLabel.setBounds(30, 36, 184, 91);
 		panel_1.add(timeLabel);
-		init();
 		cardLayout = (CardLayout) (panel.getLayout());
-		timeLabel.setText(hours_string + ":" + minutes_string + ":" + seconds_string);
 
 		String[] platforms = { "None", "Youtube", "Coursera", "CodeCademy", "CodeWars", "Kaggle", "Physical Book",
 				"Others" };
@@ -165,7 +163,24 @@ public class Main extends JFrame implements ActionListener {
 		lblNewLabel_1_1.setForeground(Color.WHITE);
 		lblNewLabel_1_1.setBounds(56, 111, 72, 14);
 		getContentPane().add(lblNewLabel_1_1);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 364, 531);
+		stopButton = new JButton("Stop");
+		stopButton.setBounds(129, 138, 89, 23);
+		panel_1.add(stopButton);
+
+		pauseButton = new JButton("Pause");
+		pauseButton.setBounds(30, 169, 89, 23);
+		panel_1.add(pauseButton);
+
+		restButton = new JButton("Rest");
+		restButton.setBounds(129, 169, 89, 23);
+		panel_1.add(restButton);
+		restButton.addActionListener(this);
+		pauseButton.addActionListener(this);
+		stopButton.addActionListener(this);
 		setLocationRelativeTo(null);
+		init();
 	}
 
 	JComboBox languageBox;
@@ -193,25 +208,22 @@ public class Main extends JFrame implements ActionListener {
 	}
 
 	public void init() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 364, 531);
-		stopButton = new JButton("Stop");
-		stopButton.setBounds(129, 138, 89, 23);
-		panel_1.add(stopButton);
-
-		pauseButton = new JButton("Pause");
-		pauseButton.setBounds(30, 169, 89, 23);
-		panel_1.add(pauseButton);
-
-		restButton = new JButton("Rest");
-		restButton.setBounds(129, 169, 89, 23);
-		panel_1.add(restButton);
-		restButton.addActionListener(this);
-		pauseButton.addActionListener(this);
-		stopButton.addActionListener(this);
+		timeLabel.setText(hours_string + ":" + minutes_string + ":" + seconds_string);
+		startButton.setEnabled(true);
 		restButton.setEnabled(false);
 		pauseButton.setEnabled(false);
 		stopButton.setEnabled(false);
+		time = 0;
+		elapsedTime = 0;
+		seconds = 0;
+		minutes = 0;
+		hours = 0;
+		rest = 0;
+		restDuration = 0;
+		restTime = 0;
+		restMinute = 0;
+		restSecond = 0;
+		timesUpClose = 0;
 		createTabbedPane();
 	}
 
@@ -269,6 +281,18 @@ public class Main extends JFrame implements ActionListener {
 	}
 
 	void stop() {
+		getDetails();
+		sendToDB();
+		init();
+
+	}
+
+	String pauseDur;
+	String restDur;
+	String timeDur;
+	String type;
+
+	void getDetails() {
 		type = (String) typeBox.getSelectedItem();
 		platform = (String) platformBox.getSelectedItem();
 		subject = (String) subjectBox.getSelectedItem();
@@ -284,24 +308,7 @@ public class Main extends JFrame implements ActionListener {
 				+ String.format("%02d", (restDuration / 1000) % 60);
 		timeDur = String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":"
 				+ String.format("%02d", seconds);
-		sendToDB();
-		time = 0;
-		elapsedTime = 0;
-		seconds = 0;
-		minutes = 0;
-		hours = 0;
-		rest = 0;
-		restDuration = 0;
-		restTime = 0;
-		restMinute = 0;
-		restSecond = 0;
-		timesUpClose = 0;
 	}
-
-	String pauseDur;
-	String restDur;
-	String timeDur;
-	String type;
 
 	void sendToDB() {
 		try {

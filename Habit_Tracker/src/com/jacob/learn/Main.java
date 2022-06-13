@@ -60,7 +60,7 @@ public class Main extends JFrame implements ActionListener {
 	/**
 	 * Create the frame.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Main() {
 		connect();
 		getContentPane().setBackground(Color.DARK_GRAY);
@@ -75,6 +75,7 @@ public class Main extends JFrame implements ActionListener {
 		lblNewLabel_1.setForeground(Color.WHITE);
 
 		platformBox = new JComboBox();
+		platformBox.setBackground(Color.GRAY);
 		platformBox.setBounds(138, 139, 158, 20);
 
 		titleField = new JLabel("Title");
@@ -82,6 +83,7 @@ public class Main extends JFrame implements ActionListener {
 		titleField.setForeground(Color.WHITE);
 
 		courseField = new JTextField();
+		courseField.setBackground(Color.GRAY);
 		courseField.setBounds(138, 228, 158, 20);
 		courseField.setColumns(10);
 
@@ -90,7 +92,7 @@ public class Main extends JFrame implements ActionListener {
 		panel.setBackground(Color.LIGHT_GRAY);
 		panel.setLayout(new CardLayout(0, 0));
 
-		JPanel panel_1 = new JPanel();
+		panel_1 = new JPanel();
 		panel_1.setBackground(Color.LIGHT_GRAY);
 		panel.add(panel_1, "init");
 		panel_1.setLayout(null);
@@ -109,20 +111,6 @@ public class Main extends JFrame implements ActionListener {
 		cardLayout = (CardLayout) (panel.getLayout());
 		timeLabel.setText(hours_string + ":" + minutes_string + ":" + seconds_string);
 
-		stopButton = new JButton("Stop");
-		stopButton.setBounds(129, 138, 89, 23);
-		panel_1.add(stopButton);
-
-		pauseButton = new JButton("Pause");
-		pauseButton.setBounds(30, 169, 89, 23);
-		panel_1.add(pauseButton);
-
-		restButton = new JButton("Rest");
-		restButton.setBounds(129, 169, 89, 23);
-		panel_1.add(restButton);
-		restButton.addActionListener(this);
-		pauseButton.addActionListener(this);
-		stopButton.addActionListener(this);
 		String[] platforms = { "None", "Youtube", "Coursera", "CodeCademy", "CodeWars", "Kaggle", "Physical Book",
 				"Others" };
 		for (String platform : platforms) {
@@ -133,6 +121,7 @@ public class Main extends JFrame implements ActionListener {
 		lblNewLabel_3.setForeground(Color.WHITE);
 
 		subjectBox = new JComboBox();
+		subjectBox.setBackground(Color.GRAY);
 		subjectBox.setBounds(139, 170, 158, 20);
 		String[] subjects = { "None", "Web Development", "Data Science", "Pure Coding", "Math", "Science", "Philosophy",
 				"Others" };
@@ -141,6 +130,7 @@ public class Main extends JFrame implements ActionListener {
 		}
 
 		languageBox = new JComboBox();
+		languageBox.setBackground(Color.GRAY);
 		languageBox.setBounds(138, 200, 158, 20);
 		String[] languages = { "None", "Python", "R", "SQL", "Scala", "Java", "C#", "C++", "JavaScript", "Others" };
 		for (String language : languages) {
@@ -191,9 +181,27 @@ public class Main extends JFrame implements ActionListener {
 	public void init() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 364, 531);
+		stopButton = new JButton("Stop");
+		stopButton.setBounds(129, 138, 89, 23);
+		panel_1.add(stopButton);
 
+		pauseButton = new JButton("Pause");
+		pauseButton.setBounds(30, 169, 89, 23);
+		panel_1.add(pauseButton);
+
+		restButton = new JButton("Rest");
+		restButton.setBounds(129, 169, 89, 23);
+		panel_1.add(restButton);
+		restButton.addActionListener(this);
+		pauseButton.addActionListener(this);
+		stopButton.addActionListener(this);
+		restButton.setEnabled(false);
+		pauseButton.setEnabled(false);
+		stopButton.setEnabled(false);
 		createTabbedPane();
 	}
+
+	JPanel panel_1;
 
 	void rest() {
 
@@ -226,6 +234,10 @@ public class Main extends JFrame implements ActionListener {
 	}
 
 	void start() {
+		startButton.setEnabled(false);
+		pauseButton.setEnabled(true);
+		stopButton.setEnabled(true);
+		restButton.setEnabled(true);
 		timer.start();
 
 	}
@@ -406,7 +418,8 @@ public class Main extends JFrame implements ActionListener {
 				response = JOptionPane.showOptionDialog(restFrame, "No more rest time remaining", "Time's up!",
 						JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 				if (response == JOptionPane.OK_OPTION) {
-
+					timesUp.stop();
+					timesUpClose = 0;
 					clip.stop();
 					restFrame.setVisible(false);
 					restTimer.stop();
@@ -432,13 +445,14 @@ public class Main extends JFrame implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (timesUpClose == 60000) {
-				JOptionPane.showMessageDialog(null, "Session ended due to inactivity");
 				clip.stop();
 				restTimer.stop();
-				restFrame.setVisible(false);
 				timer.stop();
 				stop();
 				timesUp.stop();
+				restFrame.setVisible(false);
+				JOptionPane.showMessageDialog(null, "Session ended due to inactivity");
+
 			}
 			timesUpClose += 1000;
 

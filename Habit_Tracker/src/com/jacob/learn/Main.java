@@ -121,7 +121,7 @@ public class Main extends JFrame implements ActionListener {
 		subjectBox = new JComboBox();
 		subjectBox.setBackground(Color.GRAY);
 		subjectBox.setBounds(139, 170, 158, 20);
-		String[] subjects = { "None", "Web Development", "Data Science", "Pure Coding", "Math", "Science", "Philosophy",
+		String[] subjects = { "None", "Web Development", "Data Science", "Programming", "Math", "Science", "Philosophy",
 				"Others" };
 		for (String subject : subjects) {
 			subjectBox.addItem(subject);
@@ -207,6 +207,9 @@ public class Main extends JFrame implements ActionListener {
 
 	}
 
+	/**
+	 * Initializes the data that needs to be initialized in every session
+	 */
 	public void init() {
 		timeLabel.setText(hours_string + ":" + minutes_string + ":" + seconds_string);
 		startButton.setEnabled(true);
@@ -229,8 +232,11 @@ public class Main extends JFrame implements ActionListener {
 
 	JPanel panel_1;
 
+	/**
+	 * The logic for rest, creates the JFrame and then adds event listeners
+	 */
 	void rest() {
-
+		timer.stop();
 		restLabel = new JLabel();
 		restFrame = new JFrame();
 		restLabel.setText("00" + ":0" + restMinute + ":0" + restSecond);
@@ -251,7 +257,6 @@ public class Main extends JFrame implements ActionListener {
 			public void windowClosing(java.awt.event.WindowEvent e) {
 
 				restTimer.stop();
-				restTime = 0;
 				restMinute = 0;
 				restSecond = 0;
 			}

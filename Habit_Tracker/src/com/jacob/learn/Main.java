@@ -136,6 +136,15 @@ public class Main extends JFrame implements ActionListener {
 		for (String language : languages) {
 			languageBox.addItem(language);
 		}
+		typeBox = new JComboBox();
+		String[] types = { "None", "Project", "Academic", "Self-Learning" };
+		for (String type : types) {
+			typeBox.addItem(type);
+		}
+
+		typeBox.setBackground(Color.GRAY);
+		typeBox.setBounds(138, 108, 158, 20);
+		getContentPane().add(typeBox);
 
 		JLabel lblNewLabel_3_1 = new JLabel("Language");
 		lblNewLabel_3_1.setBounds(56, 203, 66, 14);
@@ -152,11 +161,16 @@ public class Main extends JFrame implements ActionListener {
 		getContentPane().add(lblNewLabel_3);
 		getContentPane().add(subjectBox);
 
+		JLabel lblNewLabel_1_1 = new JLabel("Type");
+		lblNewLabel_1_1.setForeground(Color.WHITE);
+		lblNewLabel_1_1.setBounds(56, 111, 72, 14);
+		getContentPane().add(lblNewLabel_1_1);
 		setLocationRelativeTo(null);
 	}
 
 	JComboBox languageBox;
 	JLabel titleField;
+	JComboBox typeBox;
 
 	/**
 	 * connect to mySQL database
@@ -247,6 +261,7 @@ public class Main extends JFrame implements ActionListener {
 		subjectBox.setSelectedItem("None");
 		languageBox.setSelectedItem("None");
 		courseField.setText("");
+		typeBox.setSelectedItem("None");
 	}
 
 	void pause() {
@@ -254,7 +269,7 @@ public class Main extends JFrame implements ActionListener {
 	}
 
 	void stop() {
-
+		type = (String) typeBox.getSelectedItem();
 		platform = (String) platformBox.getSelectedItem();
 		subject = (String) subjectBox.getSelectedItem();
 		course = courseField.getText();
@@ -286,20 +301,22 @@ public class Main extends JFrame implements ActionListener {
 	String pauseDur;
 	String restDur;
 	String timeDur;
+	String type;
 
 	void sendToDB() {
 		try {
 			pst = con.prepareStatement(
-					"insert into `habit_tracker`(`dateperformed`, `platform`, `subject`, `course`, `language`, `time_elapsed`, `pause_duration`, `rest_duration`) VALUES(?,?,?,?,?,?,?,?)");
+					"insert into `habit_tracker`(`dateperformed`, `type`, `platform`, `subject`, `course`, `language`, `time_elapsed`, `pause_duration`, `rest_duration`) VALUES(?,?,?,?,?,?,?,?,?)");
 
 			pst.setString(1, date);
-			pst.setString(2, platform);
-			pst.setString(3, subject);
-			pst.setString(4, course);
-			pst.setString(5, (String) languageBox.getSelectedItem());
-			pst.setString(6, timeDur);
-			pst.setString(7, pauseDur);
-			pst.setString(8, restDur);
+			pst.setString(2, type);
+			pst.setString(3, platform);
+			pst.setString(4, subject);
+			pst.setString(5, course);
+			pst.setString(6, (String) languageBox.getSelectedItem());
+			pst.setString(7, timeDur);
+			pst.setString(8, pauseDur);
+			pst.setString(9, restDur);
 
 			pst.executeUpdate();
 
@@ -355,8 +372,8 @@ public class Main extends JFrame implements ActionListener {
 	int restTime = 0;
 	int restMinute = 0;
 	int restSecond = 0;
-	int timesUpClose = 50000; // increments when JOPtionPaneDialog is opened, will wait for user input, and if
-								// a minute has passed and no input from the user, automatic stop session
+	int timesUpClose = 0; // increments when JOPtionPaneDialog is opened, will wait for user input, and if
+							// a minute has passed and no input from the user, automatic stop session
 	boolean started = false;
 	String restSecString = String.format("%02d", restSecond);
 	String restMinString = String.format("%02d", restMinute);

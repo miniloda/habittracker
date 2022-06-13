@@ -264,6 +264,9 @@ public class Main extends JFrame implements ActionListener {
 
 	}
 
+	/**
+	 * Changes the state of the buttons and then starts the Timer timer object
+	 */
 	void start() {
 		startButton.setEnabled(false);
 		pauseButton.setEnabled(true);
@@ -344,7 +347,7 @@ public class Main extends JFrame implements ActionListener {
 
 	public String getDate() {
 		currentDate = new Date();
-		timeFormat = new SimpleDateFormat("yyyy-MM-dd");
+		timeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 		return timeFormat.format(currentDate);
 	}
 

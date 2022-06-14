@@ -64,7 +64,7 @@ public class Main extends JFrame implements ActionListener {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Main() {
-		dayStarted = "";
+		dayState = "";
 		connect();
 		checkDay();
 		checkGap();
@@ -197,7 +197,7 @@ public class Main extends JFrame implements ActionListener {
 		startDayButton.addActionListener(this);
 		endDayButton.addActionListener(this);
 		setLocationRelativeTo(null);
-		if (dayStarted.equals("STARTED")) {
+		if (dayState.equals("STARTED")) {
 			startDayButton.setEnabled(false);
 			endDayButton.setEnabled(true);
 			startButton.setEnabled(true);
@@ -347,10 +347,9 @@ public class Main extends JFrame implements ActionListener {
 	String restDur;
 	String timeDur;
 	String type;
-	String dayStarted;
+	String dayState;
 	int dayNumber;
 	ResultSet rs;
-	String dayState;
 
 	public void checkDay() {
 		System.out.println(dayNumber + "3");
@@ -359,26 +358,14 @@ public class Main extends JFrame implements ActionListener {
 					"SELECT `day_number`, `day_state`  FROM `habit_tracker` ORDER BY `dateperformed` DESC LIMIT 1");
 			rs = pst.executeQuery();
 			rs.first();
-			System.out.println(rs.getString("day_state"));
-			if (rs.getString("day_state").equals("STARTED") || rs.getString("day_state").equals("SKIPPED")) {
-				dayStarted = rs.getString("day_state");
-				try {
+			dayState = rs.getString("day_state");
+			try {
 
-					dayNumber = Integer.parseInt(rs.getString("day_number"));
-				} catch (Exception ex) {
-					ex.printStackTrace();
+				dayNumber = Integer.parseInt(rs.getString("day_number"));
 
-				}
-
-			} else {
-				try {
-					dayNumber = Integer.parseInt(rs.getString("day_number"));
-					dayStarted = "ENDED";
-				} catch (Exception ex) {
-					ex.printStackTrace();
-					dayNumber = 0;
-				}
-
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				dayNumber = 0;
 			}
 
 		} catch (SQLException e) {
@@ -410,26 +397,34 @@ public class Main extends JFrame implements ActionListener {
 				+ String.format("%02d", (restDuration / 1000) % 60);
 		timeDur = String.format("%02d", hours) + ":" + String.format("%02d", minutes) + ":"
 				+ String.format("%02d", seconds);
+		if (dayState.equals("STARTED") || dayState.equals("IN PROGRESS")) {
+			dayStatePass = "IN PROGRESS";
+		} else {
+			dayStatePass = "STARTED";
+		}
 	}
+
+	String dayStatePass;
 
 	void sendToDB() {
 		System.out.println(dayNumber);
 		try {
 			pst = con.prepareStatement(
-					"insert into `habit_tracker`(`day_number`, `dateperformed`, `type`, `platform`, `subject`, `course`, `language`, `time_elapsed`, `pause_duration`, `rest_duration`, `session_end`, `pauseReason`)"
-							+ " VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
+					"insert into `habit_tracker`(`day_number`, `day_state`, `dateperformed`, `type`, `platform`, `subject`, `course`, `language`, `time_elapsed`, `pause_duration`, `rest_duration`, `session_end`, `pauseReason`)"
+							+ " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			pst.setInt(1, dayNumber);
-			pst.setString(2, date);
-			pst.setString(3, type);
-			pst.setString(4, platform);
-			pst.setString(5, subject);
-			pst.setString(6, course);
-			pst.setString(7, (String) languageBox.getSelectedItem());
-			pst.setString(8, timeDur);
-			pst.setString(9, pauseDur);
-			pst.setString(10, restDur);
-			pst.setString(11, sessionEnd);
-			pst.setString(12, pauseReason.toString());
+			pst.setString(2, dayStatePass);
+			pst.setString(3, date);
+			pst.setString(4, type);
+			pst.setString(5, platform);
+			pst.setString(6, subject);
+			pst.setString(7, course);
+			pst.setString(8, (String) languageBox.getSelectedItem());
+			pst.setString(9, timeDur);
+			pst.setString(10, pauseDur);
+			pst.setString(11, restDur);
+			pst.setString(12, sessionEnd);
+			pst.setString(13, pauseReason.toString());
 
 			pst.executeUpdate();
 
@@ -483,7 +478,7 @@ public class Main extends JFrame implements ActionListener {
 				dayNumber += 1;
 				difference -= 24;
 				tempDay += 24;
-				dayStarted = "";
+				dayState = "SKIPPED";
 
 			}
 

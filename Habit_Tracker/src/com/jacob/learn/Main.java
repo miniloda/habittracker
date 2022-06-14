@@ -112,7 +112,6 @@ public class Main extends JFrame implements ActionListener {
 		timeLabel.setFont(new Font("Verdana", Font.PLAIN, 35));
 		timeLabel.setBounds(30, 36, 184, 91);
 		panel_1.add(timeLabel);
-		cardLayout = (CardLayout) (panel.getLayout());
 
 		String[] platforms = { "None", "Youtube", "Coursera", "CodeCademy", "CodeWars", "Kaggle", "Physical Book",
 				"Others" };
@@ -499,6 +498,7 @@ public class Main extends JFrame implements ActionListener {
 		// TODO Auto-generated method stub
 		if (e.getSource() == startButton) {
 			System.out.println("Start" + dayNumber);
+			pauseTimer.stop();
 			start();
 		}
 		if (e.getSource() == stopButton) {
@@ -650,7 +650,6 @@ public class Main extends JFrame implements ActionListener {
 		}
 	});
 
-	CardLayout cardLayout;
 	private Date currentDate;
 	private SimpleDateFormat timeFormat;
 	JLabel timeLabel;

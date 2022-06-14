@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
@@ -62,11 +64,14 @@ public class Main extends JFrame implements ActionListener {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Main() {
+		dayStarted = "";
 		connect();
+		checkDay();
+		checkGap();
 		getContentPane().setBackground(Color.DARK_GRAY);
 
 		JLabel lblNewLabel = new JLabel("UpSkill!");
-		lblNewLabel.setBounds(115, 36, 143, 47);
+		lblNewLabel.setBounds(113, 16, 143, 47);
 		lblNewLabel.setForeground(Color.WHITE);
 		lblNewLabel.setFont(new Font("Papyrus", Font.BOLD, 29));
 
@@ -175,17 +180,43 @@ public class Main extends JFrame implements ActionListener {
 
 		restButton = new JButton("Rest");
 		restButton.setBounds(129, 169, 89, 23);
+
 		panel_1.add(restButton);
+
+		startDayButton = new JButton("Start Day");
+		startDayButton.setEnabled(true);
+		startDayButton.setBounds(80, 74, 89, 23);
+		getContentPane().add(startDayButton);
+
+		endDayButton = new JButton("End Day");
+		endDayButton.setEnabled(true);
+		endDayButton.setBounds(186, 74, 89, 23);
+		getContentPane().add(endDayButton);
 		restButton.addActionListener(this);
 		pauseButton.addActionListener(this);
 		stopButton.addActionListener(this);
+		startDayButton.addActionListener(this);
+		endDayButton.addActionListener(this);
 		setLocationRelativeTo(null);
+		if (dayStarted.equals("STARTED")) {
+			startDayButton.setEnabled(false);
+			endDayButton.setEnabled(true);
+			startButton.setEnabled(true);
+
+		} else {
+			startButton.setEnabled(false);
+			endDayButton.setEnabled(false);
+			startDayButton.setEnabled(true);
+
+		}
 		init();
 	}
 
 	JComboBox languageBox;
 	JLabel titleField;
 	JComboBox typeBox;
+	JButton startDayButton;
+	JButton endDayButton;
 
 	/**
 	 * connect to mySQL database
@@ -211,8 +242,10 @@ public class Main extends JFrame implements ActionListener {
 	 * Initializes the data that needs to be initialized in every session
 	 */
 	public void init() {
-		timeLabel.setText(hours_string + ":" + minutes_string + ":" + seconds_string);
-		startButton.setEnabled(true);
+
+		pauseTimer.stop();
+		restTimer.stop();
+
 		restButton.setEnabled(false);
 		pauseButton.setEnabled(false);
 		stopButton.setEnabled(false);
@@ -227,7 +260,10 @@ public class Main extends JFrame implements ActionListener {
 		restMinute = 0;
 		restSecond = 0;
 		timesUpClose = 0;
-		createTabbedPane();
+		seconds_string = String.format("%02d", seconds);
+		minutes_string = String.format("%02d", minutes);
+		hours_string = String.format("%02d", hours);
+		timeLabel.setText(hours_string + ":" + minutes_string + ":" + seconds_string);
 	}
 
 	JPanel panel_1;
@@ -255,7 +291,7 @@ public class Main extends JFrame implements ActionListener {
 		restFrame.addWindowListener(new java.awt.event.WindowAdapter() {
 			@Override
 			public void windowClosing(java.awt.event.WindowEvent e) {
-
+				timer.start();
 				restTimer.stop();
 				restMinute = 0;
 				restSecond = 0;
@@ -282,15 +318,28 @@ public class Main extends JFrame implements ActionListener {
 		languageBox.setSelectedItem("None");
 		courseField.setText("");
 		typeBox.setSelectedItem("None");
+		pauseReason = new StringBuilder();
 	}
 
 	void pause() {
+		String temp;
 		timer.stop();
+		pauseTimer.start();
+		temp = JOptionPane.showInputDialog("For what reason?");
+		pauseReason.append(temp);
+
+		startButton.setEnabled(true);
+
 	}
 
+	StringBuilder pauseReason = new StringBuilder();
+
 	void stop() {
+		startButton.setEnabled(true);
+		sessionEnd = "User";
 		getDetails();
 		sendToDB();
+		checkDay();
 		init();
 
 	}
@@ -299,12 +348,58 @@ public class Main extends JFrame implements ActionListener {
 	String restDur;
 	String timeDur;
 	String type;
+	String dayStarted;
+	int dayNumber;
+	ResultSet rs;
+	String dayState;
+
+	public void checkDay() {
+		System.out.println(dayNumber + "3");
+		try {
+			pst = con.prepareStatement(
+					"SELECT `day_number`, `day_state`  FROM `habit_tracker` ORDER BY `dateperformed` DESC LIMIT 1");
+			rs = pst.executeQuery();
+			rs.first();
+			System.out.println(rs.getString("day_state"));
+			if (rs.getString("day_state").equals("STARTED") || rs.getString("day_state").equals("SKIPPED")) {
+				dayStarted = rs.getString("day_state");
+				try {
+
+					dayNumber = Integer.parseInt(rs.getString("day_number"));
+				} catch (Exception ex) {
+					ex.printStackTrace();
+
+				}
+
+			} else {
+				try {
+					dayNumber = Integer.parseInt(rs.getString("day_number"));
+					dayStarted = "ENDED";
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					dayNumber = 0;
+				}
+
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+
+			e.printStackTrace();
+			dayNumber = 0;
+		}
+
+	}
 
 	void getDetails() {
 		type = (String) typeBox.getSelectedItem();
 		platform = (String) platformBox.getSelectedItem();
 		subject = (String) subjectBox.getSelectedItem();
-		course = courseField.getText();
+		if (courseField.getText().equals("")) {
+			course = "None";
+		} else {
+			course = courseField.getText();
+		}
 		date = getDate();
 		timer.stop();
 		timeLabel.setText(hours_string + ":" + minutes_string + ":" + seconds_string);
@@ -319,19 +414,23 @@ public class Main extends JFrame implements ActionListener {
 	}
 
 	void sendToDB() {
+		System.out.println(dayNumber);
 		try {
 			pst = con.prepareStatement(
-					"insert into `habit_tracker`(`dateperformed`, `type`, `platform`, `subject`, `course`, `language`, `time_elapsed`, `pause_duration`, `rest_duration`) VALUES(?,?,?,?,?,?,?,?,?)");
-
-			pst.setString(1, date);
-			pst.setString(2, type);
-			pst.setString(3, platform);
-			pst.setString(4, subject);
-			pst.setString(5, course);
-			pst.setString(6, (String) languageBox.getSelectedItem());
-			pst.setString(7, timeDur);
-			pst.setString(8, pauseDur);
-			pst.setString(9, restDur);
+					"insert into `habit_tracker`(`day_number`, `dateperformed`, `type`, `platform`, `subject`, `course`, `language`, `time_elapsed`, `pause_duration`, `rest_duration`, `session_end`, `pauseReason`)"
+							+ " VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
+			pst.setInt(1, dayNumber);
+			pst.setString(2, date);
+			pst.setString(3, type);
+			pst.setString(4, platform);
+			pst.setString(5, subject);
+			pst.setString(6, course);
+			pst.setString(7, (String) languageBox.getSelectedItem());
+			pst.setString(8, timeDur);
+			pst.setString(9, pauseDur);
+			pst.setString(10, restDur);
+			pst.setString(11, sessionEnd);
+			pst.setString(12, pauseReason.toString());
 
 			pst.executeUpdate();
 
@@ -351,19 +450,59 @@ public class Main extends JFrame implements ActionListener {
 		return timeFormat.format(currentDate);
 	}
 
-	/**
-	 * Creates the tab pane and the tabs
-	 */
-	public void createTabbedPane() {
+	public void endDay() throws SQLException {
+		pst = con.prepareStatement("UPDATE `habit_tracker` SET `day_state` = 'ENDED' WHERE `dateperformed` = "
+				+ "(SELECT MAX(`dateperformed`) from `habit_tracker`)");
+		pst.executeUpdate();
+	}
+
+	public void checkGap() {
+		try {
+
+			pst = con.prepareStatement("SELECT MAX(`dateperformed`) as date FROM `habit_tracker`");
+			rs = pst.executeQuery();
+			rs.first();
+			Timestamp lastDate = rs.getTimestamp("date");
+			Date dateNow = new Date();
+			long lastDateTS = lastDate.getTime();
+			long dateNowTS = dateNow.getTime();
+
+			double difference = (double) ((dateNowTS / 1) - lastDateTS) / (60000 * 60);
+			int tempDay = 24;
+			if (difference > 48) {
+				dayNumber += 1;
+			}
+			while (difference > 48) {
+
+				SimpleDateFormat tempformat = new SimpleDateFormat("yyyy-MM-dd");
+				pst = con.prepareStatement(
+						"INSERT INTO `habit_tracker`(day_number,dateperformed, day_state) VALUES (?,?,?)");
+				pst.setInt(1, dayNumber);
+				pst.setString(3, "SKIPPED");
+				pst.setString(2, tempformat.format(lastDateTS + tempDay * 1000 * 60 * 60));
+				pst.executeUpdate();
+				dayNumber += 1;
+				difference -= 24;
+				tempDay += 24;
+				dayStarted = "";
+
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if (e.getSource() == startButton) {
+			System.out.println("Start" + dayNumber);
 			start();
 		}
 		if (e.getSource() == stopButton) {
+			endDayButton.setEnabled(true);
 			stop();
 		}
 		if (e.getSource() == pauseButton) {
@@ -371,6 +510,23 @@ public class Main extends JFrame implements ActionListener {
 		}
 		if (e.getSource() == restButton) {
 			rest();
+		}
+		if (e.getSource() == endDayButton) {
+			try {
+				endDay();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			JOptionPane.showMessageDialog(null, "Great Job today, self!");
+			System.exit(0);
+		}
+		if (e.getSource() == startDayButton) {
+			dayNumber += 1;
+			startButton.setEnabled(true);
+			endDayButton.setEnabled(false);
+			startDayButton.setEnabled(false);
+
 		}
 
 	}
@@ -395,7 +551,7 @@ public class Main extends JFrame implements ActionListener {
 	String seconds_string = String.format("%02d", seconds);
 	String minutes_string = String.format("%02d", minutes);
 	String hours_string = String.format("%02d", hours);
-
+	String sessionEnd;
 	Timer timer = new Timer(1000, new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -412,6 +568,7 @@ public class Main extends JFrame implements ActionListener {
 
 		}
 	});
+
 	Timer restTimer = new Timer(1000, new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -479,10 +636,12 @@ public class Main extends JFrame implements ActionListener {
 			if (timesUpClose == 60000) {
 				clip.stop();
 				restTimer.stop();
+				sessionEnd = "Inactivity";
 				timer.stop();
 				stop();
 				timesUp.stop();
 				restFrame.setVisible(false);
+
 				JOptionPane.showMessageDialog(null, "Session ended due to inactivity");
 
 			}

@@ -533,12 +533,14 @@ public class Main extends JFrame implements ActionListener {
 				platformBox.addItem("Physical");
 				platformBox.addItem("Online");
 				platformBox.setSelectedItem("None");
-				subjectBox.setSelectedItem(false);
-				languageBox.setSelectedItem(false);
+				subjectBox.setEnabled(false);
+				languageBox.setEnabled(false);
+				subjectBox.setSelectedItem("None");
+				subjectBox.setSelectedItem("None");
 
 			} else {
-				subjectBox.setSelectedItem(true);
-				languageBox.setSelectedItem(true);
+				subjectBox.setEnabled(true);
+				languageBox.setEnabled(true);
 				platformBox.removeAllItems();
 				String[] platforms = { "None", "Youtube", "Coursera", "CodeCademy", "CodeWars", "Kaggle",
 						"Physical Book", "Others" };

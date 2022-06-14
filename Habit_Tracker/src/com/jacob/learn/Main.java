@@ -139,7 +139,7 @@ public class Main extends JFrame implements ActionListener {
 			languageBox.addItem(language);
 		}
 		typeBox = new JComboBox();
-		String[] types = { "None", "Project", "Academic", "Self-Learning" };
+		String[] types = { "None", "Project", "Academic", "Self-Learning", "Leisure" };
 		for (String type : types) {
 			typeBox.addItem(type);
 		}
@@ -147,7 +147,7 @@ public class Main extends JFrame implements ActionListener {
 		typeBox.setBackground(Color.GRAY);
 		typeBox.setBounds(138, 108, 158, 20);
 		getContentPane().add(typeBox);
-
+		typeBox.addActionListener(this);
 		JLabel lblNewLabel_3_1 = new JLabel("Language");
 		lblNewLabel_3_1.setBounds(56, 203, 66, 14);
 		lblNewLabel_3_1.setForeground(Color.WHITE);
@@ -488,6 +488,7 @@ public class Main extends JFrame implements ActionListener {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
@@ -522,6 +523,30 @@ public class Main extends JFrame implements ActionListener {
 			endDayButton.setEnabled(false);
 			startDayButton.setEnabled(false);
 
+		}
+		if (e.getSource() == typeBox) {
+
+			if (typeBox.getSelectedItem().equals("Leisure")) {
+				System.out.println("g");
+				platformBox.removeAllItems();
+				platformBox.addItem("None");
+				platformBox.addItem("Physical");
+				platformBox.addItem("Online");
+				platformBox.setSelectedItem("None");
+				subjectBox.setSelectedItem(false);
+				languageBox.setSelectedItem(false);
+
+			} else {
+				subjectBox.setSelectedItem(true);
+				languageBox.setSelectedItem(true);
+				platformBox.removeAllItems();
+				String[] platforms = { "None", "Youtube", "Coursera", "CodeCademy", "CodeWars", "Kaggle",
+						"Physical Book", "Others" };
+				for (String platform : platforms) {
+					platformBox.addItem(platform);
+					platformBox.setSelectedItem("None");
+				}
+			}
 		}
 
 	}

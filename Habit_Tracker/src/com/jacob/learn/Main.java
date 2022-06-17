@@ -113,8 +113,8 @@ public class Main extends JFrame implements ActionListener {
 		timeLabel.setBounds(30, 36, 184, 91);
 		panel_1.add(timeLabel);
 
-		String[] platforms = { "None", "Youtube", "Coursera", "CodeCademy", "CodeWars", "Kaggle", "Physical Book",
-				"Others" };
+		String[] platforms = { "None", "Youtube", "Coursera", "CodeCademy", "CodeWars", "Kaggle", "The Internet",
+				"DataCamp", "Udemy", "FreeCodeCamp", "Physical Book", "Others" };
 		for (String platform : platforms) {
 			platformBox.addItem(platform);
 		}
@@ -134,7 +134,8 @@ public class Main extends JFrame implements ActionListener {
 		languageBox = new JComboBox();
 		languageBox.setBackground(Color.GRAY);
 		languageBox.setBounds(138, 200, 158, 20);
-		String[] languages = { "None", "Python", "R", "SQL", "Scala", "Java", "C#", "C++", "JavaScript", "Others" };
+		String[] languages = { "None", "Python", "R", "Rust", "SQL", "Scala", "Java", "Unity/C#", "GoLang", "C++", "C",
+				"JavaScript/HTML/CSS", "Others" };
 		for (String language : languages) {
 			languageBox.addItem(language);
 		}
@@ -197,7 +198,7 @@ public class Main extends JFrame implements ActionListener {
 		startDayButton.addActionListener(this);
 		endDayButton.addActionListener(this);
 		setLocationRelativeTo(null);
-		if (dayState.equals("STARTED")) {
+		if (dayState.equals("STARTED") || dayState.equals("IN PROGRESS")) {
 			startDayButton.setEnabled(false);
 			endDayButton.setEnabled(true);
 			startButton.setEnabled(true);
@@ -209,6 +210,31 @@ public class Main extends JFrame implements ActionListener {
 
 		}
 		init();
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent e) {
+//				try {
+//					pst = con.prepareStatement("SELECT `day_state` FROM `habit_tracker` ORDER BY `dateperfomed DESC LIMIT 1");
+//					rs = pst.executeQuery();
+//					rs.first();
+//					if (rs.getString("day_state") != "ENDED") {
+//						stop();
+//					}
+//					
+//				} catch (SQLException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
+//				
+//				
+//			
+//				if (elapsedTime != 0) {
+//					stop();
+//				}
+				stop();
+			}
+		});
+
 	}
 
 	JComboBox languageBox;
@@ -304,9 +330,16 @@ public class Main extends JFrame implements ActionListener {
 	 */
 	void start() {
 		startButton.setEnabled(false);
-		pauseButton.setEnabled(true);
+		if (typeBox.getSelectedItem().equals("Leisure")) {
+			restButton.setEnabled(false);
+			pauseButton.setEnabled(false);
+		} else {
+			restButton.setEnabled(true);
+			pauseButton.setEnabled(true);
+		}
+
 		stopButton.setEnabled(true);
-		restButton.setEnabled(true);
+
 		timer.start();
 
 	}
@@ -386,7 +419,7 @@ public class Main extends JFrame implements ActionListener {
 		} else {
 			course = courseField.getText();
 		}
-		date = getDate();
+
 		timer.stop();
 		timeLabel.setText(hours_string + ":" + minutes_string + ":" + seconds_string);
 		pauseDur = String.format("%02d", (int) ((pauseDuration / 3600000) % 60)) + ":"
@@ -445,9 +478,21 @@ public class Main extends JFrame implements ActionListener {
 	}
 
 	public void endDay() throws SQLException {
-		pst = con.prepareStatement("UPDATE `habit_tracker` SET `day_state` = 'ENDED' WHERE `dateperformed` = "
-				+ "(SELECT MAX(`dateperformed`) from `habit_tracker`)");
-		pst.executeUpdate();
+		pst = con.prepareStatement("SELECT `day_state` FROM `habit_tracker` ORDER BY dateperformed DESC");
+		pst.executeQuery();
+		dayState = rs.getString("day_state");
+		try {
+
+			if (rs.getString("day_state") != "SKIPPED") {
+				pst = con.prepareStatement("UPDATE `habit_tracker` SET `day_state` = 'ENDED' WHERE `dateperformed` = "
+						+ "(SELECT MAX(`dateperformed`) from `habit_tracker`)");
+				pst.executeUpdate();
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
 	}
 
 	public void checkGap() {
@@ -493,7 +538,8 @@ public class Main extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if (e.getSource() == startButton) {
-			System.out.println("Start" + dayNumber);
+			endDayButton.setEnabled(false);
+			date = getDate();
 			pauseTimer.stop();
 			start();
 		}
@@ -543,7 +589,7 @@ public class Main extends JFrame implements ActionListener {
 				languageBox.setEnabled(true);
 				platformBox.removeAllItems();
 				String[] platforms = { "None", "Youtube", "Coursera", "CodeCademy", "CodeWars", "Kaggle",
-						"Physical Book", "Others" };
+						"The Internet", "DataCamp", "Udemy", "FreeCodeCamp", "Physical Book", "Others" };
 				for (String platform : platforms) {
 					platformBox.addItem(platform);
 					platformBox.setSelectedItem("None");
@@ -565,11 +611,13 @@ public class Main extends JFrame implements ActionListener {
 	int restTime = 0;
 	int restMinute = 0;
 	int restSecond = 0;
+	int restHour = 0;
 	int timesUpClose = 0; // increments when JOPtionPaneDialog is opened, will wait for user input, and if
 							// a minute has passed and no input from the user, automatic stop session
 	boolean started = false;
 	String restSecString = String.format("%02d", restSecond);
 	String restMinString = String.format("%02d", restMinute);
+	String restHourString = String.format("%02d", restHour);
 	String seconds_string = String.format("%02d", seconds);
 	String minutes_string = String.format("%02d", minutes);
 	String hours_string = String.format("%02d", hours);
@@ -586,7 +634,7 @@ public class Main extends JFrame implements ActionListener {
 			hours_string = String.format("%02d", hours);
 			timeLabel.setText(hours_string + ":" + minutes_string + ":" + seconds_string);
 			time = (double) elapsedTime / 60000;
-			restTime += (0.33333333333 * 1000);
+			restTime += (0.2 * 1000);
 
 		}
 	});
@@ -598,9 +646,11 @@ public class Main extends JFrame implements ActionListener {
 			restTime = restTime - 1000;
 			restMinute = (restTime / 60000) % 60;
 			restSecond = (restTime / 1000) % 60;
+			restHour = (restTime / 3600000);
+			restHourString = String.format("%02d", restHour);
 			restSecString = String.format("%02d", restSecond);
 			restMinString = String.format("%02d", restMinute);
-			restLabel.setText("00" + ":0" + restMinute + ":" + restSecond);
+			restLabel.setText(restHourString + ":" + restMinString + ":" + restSecString);
 
 			if (restTime <= 0) {
 				File file = new File(

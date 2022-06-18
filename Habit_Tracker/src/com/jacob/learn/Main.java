@@ -256,24 +256,7 @@ public class Main extends JFrame implements ActionListener {
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			@Override
 			public void windowClosing(java.awt.event.WindowEvent e) {
-//				try {
-//					pst = con.prepareStatement("SELECT `day_state` FROM `habit_tracker` ORDER BY `dateperfomed DESC LIMIT 1");
-//					rs = pst.executeQuery();
-//					rs.first();
-//					if (rs.getString("day_state") != "ENDED") {
-//						stop();
-//					}
-//					
-//				} catch (SQLException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-//				
-//				
-//			
-//				if (elapsedTime != 0) {
-//					stop();
-//				}
+
 				if (elapsedTime != 0) {
 					stop();
 				}

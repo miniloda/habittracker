@@ -24,12 +24,15 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
@@ -71,29 +74,23 @@ public class Main extends JFrame implements ActionListener {
 		getContentPane().setBackground(Color.DARK_GRAY);
 
 		JLabel lblNewLabel = new JLabel("UpSkill!");
-		lblNewLabel.setBounds(113, 16, 143, 47);
 		lblNewLabel.setForeground(Color.WHITE);
 		lblNewLabel.setFont(new Font("Papyrus", Font.BOLD, 29));
 
 		JLabel lblNewLabel_1 = new JLabel("Platform");
-		lblNewLabel_1.setBounds(56, 142, 72, 14);
 		lblNewLabel_1.setForeground(Color.WHITE);
 
 		platformBox = new JComboBox();
 		platformBox.setBackground(Color.GRAY);
-		platformBox.setBounds(138, 139, 158, 20);
 
 		titleField = new JLabel("Title");
-		titleField.setBounds(56, 231, 72, 14);
 		titleField.setForeground(Color.WHITE);
 
 		courseField = new JTextField();
 		courseField.setBackground(Color.GRAY);
-		courseField.setBounds(138, 228, 158, 20);
 		courseField.setColumns(10);
 
 		JPanel panel = new JPanel();
-		panel.setBounds(56, 259, 241, 203);
 		panel.setBackground(Color.LIGHT_GRAY);
 		panel.setLayout(new CardLayout(0, 0));
 
@@ -119,12 +116,10 @@ public class Main extends JFrame implements ActionListener {
 			platformBox.addItem(platform);
 		}
 		lblNewLabel_3 = new JLabel("Subject");
-		lblNewLabel_3.setBounds(56, 173, 66, 14);
 		lblNewLabel_3.setForeground(Color.WHITE);
 
 		subjectBox = new JComboBox();
 		subjectBox.setBackground(Color.GRAY);
-		subjectBox.setBounds(139, 170, 158, 20);
 		String[] subjects = { "None", "Web Development", "Data Science", "Programming", "Math", "Science", "Philosophy",
 				"Others" };
 		for (String subject : subjects) {
@@ -133,7 +128,6 @@ public class Main extends JFrame implements ActionListener {
 
 		languageBox = new JComboBox();
 		languageBox.setBackground(Color.GRAY);
-		languageBox.setBounds(138, 200, 158, 20);
 		String[] languages = { "None", "Python", "R", "Rust", "SQL", "Scala", "Java", "Unity/C#", "GoLang", "C++", "C",
 				"JavaScript/HTML/CSS", "Others" };
 		for (String language : languages) {
@@ -146,28 +140,12 @@ public class Main extends JFrame implements ActionListener {
 		}
 
 		typeBox.setBackground(Color.GRAY);
-		typeBox.setBounds(138, 108, 158, 20);
-		getContentPane().add(typeBox);
 		typeBox.addActionListener(this);
 		JLabel lblNewLabel_3_1 = new JLabel("Language");
-		lblNewLabel_3_1.setBounds(56, 203, 66, 14);
 		lblNewLabel_3_1.setForeground(Color.WHITE);
-		getContentPane().setLayout(null);
-		getContentPane().add(lblNewLabel);
-		getContentPane().add(lblNewLabel_3_1);
-		getContentPane().add(languageBox);
-		getContentPane().add(titleField);
-		getContentPane().add(courseField);
-		getContentPane().add(panel);
-		getContentPane().add(lblNewLabel_1);
-		getContentPane().add(platformBox);
-		getContentPane().add(lblNewLabel_3);
-		getContentPane().add(subjectBox);
 
 		JLabel lblNewLabel_1_1 = new JLabel("Type");
 		lblNewLabel_1_1.setForeground(Color.WHITE);
-		lblNewLabel_1_1.setBounds(56, 111, 72, 14);
-		getContentPane().add(lblNewLabel_1_1);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 364, 531);
 		stopButton = new JButton("Stop");
@@ -185,13 +163,78 @@ public class Main extends JFrame implements ActionListener {
 
 		startDayButton = new JButton("Start Day");
 		startDayButton.setEnabled(true);
-		startDayButton.setBounds(80, 74, 89, 23);
-		getContentPane().add(startDayButton);
 
 		endDayButton = new JButton("End Day");
 		endDayButton.setEnabled(true);
-		endDayButton.setBounds(186, 74, 89, 23);
-		getContentPane().add(endDayButton);
+
+		JScrollPane scrollPane = new JScrollPane();
+
+		scrollPane_1 = new JScrollPane();
+		GroupLayout groupLayout = new GroupLayout(getContentPane());
+		groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+				.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+						GroupLayout.PREFERRED_SIZE)
+				.addComponent(scrollPane_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+						GroupLayout.PREFERRED_SIZE)
+				.addGroup(groupLayout.createSequentialGroup().addGap(113).addComponent(lblNewLabel,
+						GroupLayout.PREFERRED_SIZE, 143, GroupLayout.PREFERRED_SIZE))
+				.addGroup(groupLayout.createSequentialGroup().addGap(80)
+						.addComponent(startDayButton, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE)
+						.addGap(17)
+						.addComponent(endDayButton, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE))
+				.addGroup(groupLayout.createSequentialGroup().addGap(56)
+						.addComponent(lblNewLabel_1_1, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE)
+						.addGap(10).addComponent(typeBox, GroupLayout.PREFERRED_SIZE, 158, GroupLayout.PREFERRED_SIZE))
+				.addGroup(groupLayout.createSequentialGroup().addGap(56)
+						.addComponent(lblNewLabel_1, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE)
+						.addGap(10)
+						.addComponent(platformBox, GroupLayout.PREFERRED_SIZE, 158, GroupLayout.PREFERRED_SIZE))
+				.addGroup(groupLayout.createSequentialGroup().addGap(56)
+						.addComponent(lblNewLabel_3, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
+						.addGap(17)
+						.addComponent(subjectBox, GroupLayout.PREFERRED_SIZE, 158, GroupLayout.PREFERRED_SIZE))
+				.addGroup(groupLayout.createSequentialGroup().addGap(56)
+						.addComponent(lblNewLabel_3_1, GroupLayout.PREFERRED_SIZE, 66, GroupLayout.PREFERRED_SIZE)
+						.addGap(16)
+						.addComponent(languageBox, GroupLayout.PREFERRED_SIZE, 158, GroupLayout.PREFERRED_SIZE))
+				.addGroup(groupLayout.createSequentialGroup().addGap(56)
+						.addComponent(titleField, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE).addGap(10)
+						.addComponent(courseField, GroupLayout.PREFERRED_SIZE, 158, GroupLayout.PREFERRED_SIZE))
+				.addGroup(groupLayout.createSequentialGroup().addGap(56).addComponent(panel, GroupLayout.PREFERRED_SIZE,
+						241, GroupLayout.PREFERRED_SIZE)));
+		groupLayout.setVerticalGroup(groupLayout.createParallelGroup(Alignment.LEADING).addGroup(groupLayout
+				.createSequentialGroup()
+				.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE)
+						.addComponent(scrollPane_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE))
+				.addGap(14).addComponent(lblNewLabel).addGap(11)
+				.addGroup(groupLayout
+						.createParallelGroup(Alignment.LEADING).addComponent(startDayButton).addComponent(endDayButton))
+				.addGap(11)
+				.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup().addGap(3).addComponent(lblNewLabel_1_1))
+						.addComponent(typeBox, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
+				.addGap(11)
+				.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup().addGap(3).addComponent(lblNewLabel_1))
+						.addComponent(platformBox, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
+				.addGap(11)
+				.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup().addGap(3).addComponent(lblNewLabel_3))
+						.addComponent(subjectBox, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
+				.addGap(10)
+				.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup().addGap(3).addComponent(lblNewLabel_3_1))
+						.addComponent(languageBox, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
+				.addGap(8)
+				.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup().addGap(3).addComponent(titleField))
+						.addComponent(courseField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
+								GroupLayout.PREFERRED_SIZE))
+				.addGap(11).addComponent(panel, GroupLayout.PREFERRED_SIZE, 203, GroupLayout.PREFERRED_SIZE)));
+		getContentPane().setLayout(groupLayout);
 		restButton.addActionListener(this);
 		pauseButton.addActionListener(this);
 		stopButton.addActionListener(this);
@@ -231,7 +274,9 @@ public class Main extends JFrame implements ActionListener {
 //				if (elapsedTime != 0) {
 //					stop();
 //				}
-				stop();
+				if (elapsedTime != 0) {
+					stop();
+				}
 			}
 		});
 
@@ -289,6 +334,7 @@ public class Main extends JFrame implements ActionListener {
 		minutes_string = String.format("%02d", minutes);
 		hours_string = String.format("%02d", hours);
 		timeLabel.setText(hours_string + ":" + minutes_string + ":" + seconds_string);
+		pauseDuration = 0;
 	}
 
 	JPanel panel_1;
@@ -392,6 +438,7 @@ public class Main extends JFrame implements ActionListener {
 			rs = pst.executeQuery();
 			rs.first();
 			dayState = rs.getString("day_state");
+			System.out.print(dayState);
 			try {
 
 				dayNumber = Integer.parseInt(rs.getString("day_number"));
@@ -736,4 +783,5 @@ public class Main extends JFrame implements ActionListener {
 	private JButton restButton;
 	String date;
 	JLabel restLabel;
+	private JScrollPane scrollPane_1;
 }

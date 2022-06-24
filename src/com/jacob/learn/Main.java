@@ -39,7 +39,7 @@ import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 
 import java.sql.*;
-
+import java.io.FileWriter;
 public class Main extends JFrame implements ActionListener {
 	private JTextField courseField;
 	Connection con;
@@ -67,10 +67,105 @@ public class Main extends JFrame implements ActionListener {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Main() {
-		dayState = "";
+		
+		writeDBFile();
 		connect();
+		createTables();
 		checkDay();
 		checkGap();
+		createGUI();
+
+		
+		init();
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent e) {
+
+				if (elapsedTime != 0) {
+					stop();
+				}
+			}
+		});
+
+	}
+	/**
+	 * Creates the sqlite.db file
+	 */
+	public void writeDBFile() {
+		File db = new File("historytracker.db");
+		if(!checkDBExists(db)) {
+			try {
+				db.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
+	public boolean checkDBExists(File file) {
+		if(file.exists()) {
+			return true;
+		}
+		else {
+			return false;
+		}
+		
+	}
+	
+	
+
+	JComboBox languageBox;
+	JLabel titleField;
+	JComboBox typeBox;
+	JButton startDayButton;
+	JButton endDayButton;
+
+	/**
+	 * connect to mySQL database
+	 */
+	private void connect() {
+
+		try {
+			Class.forName("org.sqlite.JDBC");
+		} catch (ClassNotFoundException e) {
+
+			e.printStackTrace();
+		}
+		try {
+			con = (Connection) DriverManager.getConnection("jdbc:sqlite:historytracker.db");
+			System.out.println("in");
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+
+	}
+	String sql; 
+	public void createTables() {
+		 sql = "CREATE TABLE IF NOT EXISTS history ('day_number'	INTEGER, 'day_state' TEXT"
+					+",'date_performed'	TEXT, "
+			        + "'type'	INTEGER,"
+					+"'platform'	INTEGER, "
+					+"'subject'	INTEGER,     "
+					+"'title'	TEXT,        "
+					+"'language'	INTEGER, "
+					+"'time_elapsed'	TEXT,"
+					+"'pause_duration'	TEXT,"
+					+"'rest_duration'	TEXT,"
+					+"'session_end'	TEXT,    "
+					+"'pause_reason'	TEXT )";
+				
+		 try {
+			pst =  con.prepareStatement(sql);  
+			pst.execute();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public void createGUI() {
 		getContentPane().setBackground(Color.DARK_GRAY);
 
 		JLabel lblNewLabel = new JLabel("UpSkill!");
@@ -218,47 +313,8 @@ public class Main extends JFrame implements ActionListener {
 			startButton.setEnabled(false);
 			endDayButton.setEnabled(false);
 			startDayButton.setEnabled(true);
-
 		}
-		init();
-		this.addWindowListener(new java.awt.event.WindowAdapter() {
-			@Override
-			public void windowClosing(java.awt.event.WindowEvent e) {
-
-				if (elapsedTime != 0) {
-					stop();
-				}
-			}
-		});
-
 	}
-
-	JComboBox languageBox;
-	JLabel titleField;
-	JComboBox typeBox;
-	JButton startDayButton;
-	JButton endDayButton;
-
-	/**
-	 * connect to mySQL database
-	 */
-	private void connect() {
-
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-
-			e.printStackTrace();
-		}
-		try {
-			con = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:3307/test", "root", "");
-		} catch (SQLException e) {
-
-			e.printStackTrace();
-		}
-
-	}
-
 	/**
 	 * Initializes the data that needs to be initialized in every session
 	 */
@@ -382,6 +438,7 @@ public class Main extends JFrame implements ActionListener {
 	ResultSet rs;
 
 	public void checkDay() {
+		dayState = "";
 		System.out.println(dayNumber + "3");
 		try {
 			pst = con.prepareStatement(

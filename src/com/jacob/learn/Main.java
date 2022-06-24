@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,7 +43,7 @@ import javax.swing.border.BevelBorder;
 import java.sql.*;
 import java.io.FileWriter;
 public class Main extends JFrame implements ActionListener {
-	private JTextField courseField;
+	private JTextField titleField;
 	Connection con;
 	PreparedStatement pst;
 
@@ -77,7 +78,9 @@ public class Main extends JFrame implements ActionListener {
 			createTables();
 			initDBRecords();
 		}
+		
 		checkDay();
+		System.out.println("In?");
 		checkGap();
 		createGUI();
 
@@ -102,10 +105,12 @@ public class Main extends JFrame implements ActionListener {
 	 */
 	public void writeDBFile() {
 		 db = new File("historytracker.db");
+		 System.out.printf("File is located at %s%n", db.getAbsolutePath());
 		if(!checkDBExists()) {
 			try {
 				db.createNewFile();
 				firstinit = true;
+				System.out.printf("File is located at %s%n", db.getAbsolutePath());
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -148,7 +153,7 @@ public class Main extends JFrame implements ActionListener {
 	
 
 	JComboBox languageBox;
-	JLabel titleField;
+	JLabel titleLabel;
 	JComboBox typeBox;
 	JButton startDayButton;
 	JButton endDayButton;
@@ -166,7 +171,7 @@ public class Main extends JFrame implements ActionListener {
 		}
 		try {
 			con = (Connection) DriverManager.getConnection("jdbc:sqlite:historytracker.db");
-			System.out.println("in");
+			
 		} catch (SQLException e) {
 
 			e.printStackTrace();
@@ -231,7 +236,7 @@ public class Main extends JFrame implements ActionListener {
 		sql = "SELECT platformid,platform FROM 'platforms'";
 		rs = con.createStatement().executeQuery(sql);
 		while (rs.next()) {
-		typeMap.put(rs.getInt("platformid"), rs.getString("platform"));
+		platformMap.put(rs.getInt("platformid"), rs.getString("platform"));
 		platformBox.addItem(rs.getString("platform"));
 		}
 		sql = "SELECT languageid,language FROM 'languages'";
@@ -255,7 +260,7 @@ public class Main extends JFrame implements ActionListener {
 		getContentPane().setBackground(Color.DARK_GRAY);
 
 		JLabel lblNewLabel = new JLabel("UpSkill!");
-		lblNewLabel.setBounds(138, 12, 143, 34);
+		lblNewLabel.setBounds(153, 12, 143, 34);
 		lblNewLabel.setForeground(Color.WHITE);
 		lblNewLabel.setFont(new Font("Papyrus", Font.BOLD, 29));
 
@@ -267,14 +272,14 @@ public class Main extends JFrame implements ActionListener {
 		platformBox.setBounds(138, 129, 158, 20);
 		platformBox.setBackground(Color.GRAY);
 
-		titleField = new JLabel("Title");
-		titleField.setBounds(56, 221, 72, 15);
-		titleField.setForeground(Color.WHITE);
+		titleLabel = new JLabel("Title");
+		titleLabel.setBounds(56, 221, 72, 15);
+		titleLabel.setForeground(Color.WHITE);
 
-		courseField = new JTextField();
-		courseField.setBounds(138, 218, 158, 19);
-		courseField.setBackground(Color.GRAY);
-		courseField.setColumns(10);
+		titleField = new JTextField();
+		titleField.setBounds(138, 218, 158, 19);
+		titleField.setBackground(Color.GRAY);
+		titleField.setColumns(10);
 
 		
 		lblNewLabel_3 = new JLabel("Subject");
@@ -303,14 +308,14 @@ public class Main extends JFrame implements ActionListener {
 		lblNewLabel_1_1.setBounds(56, 101, 72, 15);
 		lblNewLabel_1_1.setForeground(Color.WHITE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 397, 544);
+		setBounds(100, 100, 440, 537);
 
 		startDayButton = new JButton("Start Day");
-		startDayButton.setBounds(79, 58, 113, 25);
+		startDayButton.setBounds(89, 58, 113, 25);
 		startDayButton.setEnabled(true);
 
 		endDayButton = new JButton("End Day");
-		endDayButton.setBounds(215, 58, 111, 25);
+		endDayButton.setBounds(231, 58, 111, 25);
 		endDayButton.setEnabled(true);
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -332,15 +337,15 @@ public class Main extends JFrame implements ActionListener {
 		getContentPane().add(subjectBox);
 		getContentPane().add(lblNewLabel_3_1);
 		getContentPane().add(languageBox);
+		getContentPane().add(titleLabel);
 		getContentPane().add(titleField);
-		getContentPane().add(courseField);
 		
 		addTypeButton = new JButton("Add");
 		addTypeButton.setBounds(305, 96, 80, 25);
 		getContentPane().add(addTypeButton);
 		
 				panel_1 = new JPanel();
-				panel_1.setBounds(67, 260, 262, 222);
+				panel_1.setBounds(98, 250, 262, 222);
 				getContentPane().add(panel_1);
 				panel_1.setBackground(Color.LIGHT_GRAY);
 				panel_1.setLayout(null);
@@ -492,7 +497,7 @@ public class Main extends JFrame implements ActionListener {
 		platformBox.setSelectedItem("None");
 		subjectBox.setSelectedItem("None");
 		languageBox.setSelectedItem("None");
-		courseField.setText("");
+		titleField.setText("");
 		typeBox.setSelectedItem("None");
 		pauseReason = new StringBuilder();
 	}
@@ -530,9 +535,9 @@ public class Main extends JFrame implements ActionListener {
 
 	public void checkDay() {
 		dayState = "";
-		System.out.println(dayNumber + "3");
+		
 		try {
-			sql = "SELECT day_state FROM 'history'";
+			sql = "SELECT day_state, day_number FROM 'history'";
 			rs = con.createStatement().executeQuery(sql);
 			try {
 				rs.next();
@@ -543,7 +548,6 @@ public class Main extends JFrame implements ActionListener {
 			}
 			
 			
-			System.out.print(dayState);
 			try {
 
 				dayNumber = Integer.parseInt(rs.getString("day_number"));
@@ -566,10 +570,11 @@ public class Main extends JFrame implements ActionListener {
 		type = (String) typeBox.getSelectedItem();
 		platform = (String) platformBox.getSelectedItem();
 		subject = (String) subjectBox.getSelectedItem();
-		if (courseField.getText().equals("")) {
-			course = "None";
+		language = (String) languageBox.getSelectedItem();
+		if (titleField.getText().equals("")) {
+			title = "None";
 		} else {
-			course = courseField.getText();
+			title = titleField.getText();
 		}
 
 		timer.stop();
@@ -590,21 +595,64 @@ public class Main extends JFrame implements ActionListener {
 	}
 
 	String dayStatePass;
-
+	String language;
+	int typeid;
+	int platformid;
+	int subjectid;
+	int languageid;
 	void sendToDB() {
-		System.out.println(dayNumber);
+		
+		for (Entry<Integer, String> entry: typeMap.entrySet()) {
+			
+			if (entry.getValue().equals(type)) {
+				System.out.println(entry.getValue());
+				typeid = entry.getKey();
+            }
+        
+		}
+		for (Entry<Integer, String> entry: platformMap.entrySet()) {
+			
+			if (entry.getValue().equals(platform)) {
+				System.out.println(entry.getValue());
+				platformid = entry.getKey();
+				System.out.println("platformd id:" + platformid);
+     
+            }
+        
+		}
+		for (Entry<Integer, String> entry: languageMap.entrySet()) {
+			
+			if (entry.getValue().equals(language)) {
+				System.out.println(entry.getValue());
+				languageid = entry.getKey();
+               
+            }
+        
+		}
+		for (Entry<Integer, String> entry: subjectMap.entrySet()) {
+			System.out.println(entry.getValue());
+			if (entry.getValue().equals(type)) {
+				System.out.println(entry.getValue());
+				subjectid = entry.getKey();
+                
+            }
+        
+		}
+	
+	
 		try {
+			//Send the session to history
 			pst = con.prepareStatement(
-					"insert into history(`day_number`, `day_state`, `date_perfomed`, `type`, `platform`, `subject`, `course`, `language`, `time_elapsed`, `pause_duration`, `rest_duration`, `session_end`, `pauseReason`)"
+					"insert into history(day_number, `day_state`, `date_performed`, `type`, `platform`, `subject`, `title`, `language`, `time_elapsed`, `pause_duration`, `rest_duration`, `session_end`, `pause_reason`)"
 							+ " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			pst.setInt(1, dayNumber);
 			pst.setString(2, dayStatePass);
 			pst.setString(3, date);
-			pst.setString(4, type);
-			pst.setString(5, platform);
-			pst.setString(6, subject);
-			pst.setString(7, course);
-			pst.setString(8, (String) languageBox.getSelectedItem());
+			pst.setInt(4, typeid);
+			pst.setInt(5, platformid);
+			pst.setInt(6, subjectid);
+			pst.setString(7, title);
+			pst.setInt(8, languageid);
 			pst.setString(9, timeDur);
 			pst.setString(10, pauseDur);
 			pst.setString(11, restDur);
@@ -614,12 +662,10 @@ public class Main extends JFrame implements ActionListener {
 			pst.executeUpdate();
 
 		} catch (SQLException ex) {
-			Logger logger = Logger.getAnonymousLogger();
-			Exception e1 = new Exception();
-			Exception e2 = new Exception(e1);
-			logger.log(Level.SEVERE, "an exception was thrown", e2);
-			System.out.println(ex);
+			
+			ex.printStackTrace();
 		}
+		
 		clearFields();
 	}
 
@@ -630,15 +676,15 @@ public class Main extends JFrame implements ActionListener {
 	}
 
 	public void endDay() throws SQLException {
-		pst = con.prepareStatement("SELECT `day_state` FROM history ORDER BY dateperformed DESC");
+		pst = con.prepareStatement("SELECT `day_state` FROM history ORDER BY date_performed DESC");
 		rs = pst.executeQuery();
 		rs.next();
 		dayState = rs.getString("day_state");
 		try {
 
 			if (rs.getString("day_state") != "SKIPPED") {
-				pst = con.prepareStatement("UPDATE history SET `day_state` = 'ENDED' WHERE `date_perfomed` = "
-						+ "(SELECT MAX(`date_perfomed`) from history)");
+				pst = con.prepareStatement("UPDATE history SET `day_state` = 'ENDED' WHERE `date_performed` = "
+						+ "(SELECT MAX(`date_performed`) from history)");
 				pst.executeUpdate();
 			}
 
@@ -653,8 +699,9 @@ public class Main extends JFrame implements ActionListener {
 
 			pst = con.prepareStatement("SELECT MAX(`date_performed`) as date FROM `history`");
 			rs = pst.executeQuery();
-			rs.next();
-			Timestamp lastDate = rs.getTimestamp("date");
+			
+			Timestamp lastDate = Timestamp.valueOf(rs.getString("date"));
+			System.out.println(lastDate);
 			Date dateNow = new Date();
 			long lastDateTS = lastDate.getTime();
 			long dateNowTS = dateNow.getTime();
@@ -668,15 +715,17 @@ public class Main extends JFrame implements ActionListener {
 
 				SimpleDateFormat tempformat = new SimpleDateFormat("yyyy-MM-dd");
 				pst = con.prepareStatement(
-						"INSERT INTO history(day_number,dateperformed, day_state) VALUES (?,?,?)");
+						"INSERT INTO history(day_number,date_performed, day_state) VALUES (?,?,?)");
 				pst.setInt(1, dayNumber);
 				pst.setString(3, "SKIPPED");
 				pst.setString(2, tempformat.format(lastDateTS + tempDay * 1000 * 60 * 60));
+				System.out.println(difference);
 				pst.executeUpdate();
 				dayNumber += 1;
 				difference -= 24;
 				tempDay += 24;
 				dayState = "SKIPPED";
+				break;
 
 			}
 
@@ -703,16 +752,19 @@ public class Main extends JFrame implements ActionListener {
 	}
 	public boolean checkChoice(String column, String choice){
 		try {
-			sql = "SELECT "+column+" FROM "+column+"s WHERE "+column+" = " + choice;
+			sql = "SELECT "+column+" FROM "+column+"s WHERE LOWER("+column+") = LOWER('" + choice + "')";
+			System.out.println(sql);
 			pst = con.prepareStatement(sql);
 			rs = pst.executeQuery();
-			if(rs.isClosed()) {
+			if(rs.isBeforeFirst()) {
+				JOptionPane.showMessageDialog(null,"Duplicate entry");
 				return false;
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		return true;
 	}
 	String input;
@@ -995,7 +1047,7 @@ public class Main extends JFrame implements ActionListener {
 	private JComboBox subjectBox;
 	String platform;
 	String subject;
-	String course;
+	String title;
 	private JButton pauseButton;
 	private JButton restButton;
 	String date;

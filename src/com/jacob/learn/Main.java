@@ -191,16 +191,16 @@ public class Main extends JFrame implements ActionListener {
 		pst =  con.prepareStatement(sql);  
 		pst.execute();
 		
-		sql = "CREATE TABLE IF NOT EXISTS types ('typeid' INTEGER PRIMARY KEY AUTOINCREMENT, 'type' TEXT )";
+		sql = "CREATE TABLE IF NOT EXISTS types ('typeid' INTEGER PRIMARY KEY AUTOINCREMENT, 'type' TEXT , 'state' TEXT DEFAULT 'ADDED' )";
 		pst =  con.prepareStatement(sql);  
 		pst.execute();
-		sql = "CREATE TABLE IF NOT EXISTS platforms ('platformid' INTEGER PRIMARY KEY AUTOINCREMENT, 'platform' TEXT )";
+		sql = "CREATE TABLE IF NOT EXISTS platforms ('platformid' INTEGER PRIMARY KEY AUTOINCREMENT, 'platform' TEXT,'state' TEXT DEFAULT 'ADDED' )";
 		pst =  con.prepareStatement(sql);  
 		pst.execute();
-		sql = "CREATE TABLE IF NOT EXISTS subjects ('subjectid' INTEGER PRIMARY KEY AUTOINCREMENT, 'subject' TEXT )";
+		sql = "CREATE TABLE IF NOT EXISTS subjects ('subjectid' INTEGER PRIMARY KEY AUTOINCREMENT, 'subject' TEXT, 'state' TEXT DEFAULT 'ADDED' )";
 		pst =  con.prepareStatement(sql);  
 		pst.execute();
-		sql = "CREATE TABLE IF NOT EXISTS languages ('languageid' INTEGER PRIMARY KEY AUTOINCREMENT, 'language' TEXT )";
+		sql = "CREATE TABLE IF NOT EXISTS languages ('languageid' INTEGER PRIMARY KEY AUTOINCREMENT, 'language' TEXT, 'state' TEXT DEFAULT 'ADDED' )";
 		pst =  con.prepareStatement(sql);  
 		pst.execute();
 		
@@ -213,6 +213,11 @@ public class Main extends JFrame implements ActionListener {
 
 	@SuppressWarnings("unchecked")
 	public void addCheckBoxItems() throws SQLException {
+		typeBox.removeAllItems();
+		subjectBox.removeAllItems();
+		languageBox.removeAllItems();
+		platformBox.removeAllItems();
+		typeBox.removeAllItems();
 		typeMap = new HashMap<Integer, String>();    
 		platformMap = new HashMap<Integer, String>();
 		subjectMap = new HashMap<Integer, String>(); 
@@ -680,14 +685,145 @@ public class Main extends JFrame implements ActionListener {
 			e.printStackTrace();
 		}
 	}
-
+	
+	public void addChoice(String column, String choice) {
+		try {
+			sql = "Insert into '"+ column + "s'(" +column+")VALUES(?)" ;
+			System.out.println(sql);
+			
+			pst = con.prepareStatement(sql);
+			pst.setString(1, choice);
+			pst.execute();
+			JOptionPane.showMessageDialog(null,"Successfully added!");
+		}catch(SQLException e) {
+			JOptionPane.showMessageDialog(null,"Failed");
+			e.printStackTrace();
+		}
+		
+	}
+	public boolean checkChoice(String column, String choice){
+		try {
+			sql = "SELECT "+column+" FROM "+column+"s WHERE "+column+" = " + choice;
+			pst = con.prepareStatement(sql);
+			rs = pst.executeQuery();
+			if(rs.isClosed()) {
+				return false;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
+	}
+	String input;
 	@SuppressWarnings("unchecked")
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
+		
 		if (e.getSource() == addTypeButton) {
-			JOptionPane.showMessageDialog(null,"in");
+			
+			while (true) {
+			input = JOptionPane.showInputDialog(null, "Input the type");
+			if(input ==  null) {
+				break;
+			}
+			else if (input.isEmpty()) {
+				
+				JOptionPane.showMessageDialog(null,"No input given");
+			}
+			else{
+				if(checkChoice("Type", input)) {
+				addChoice("Type", input);
+			
+				}
+			}
+			
 		}
+			try {
+				addCheckBoxItems();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+	}
+		if (e.getSource() == addPlatformButton) {
+			
+			while (true) {
+			input = JOptionPane.showInputDialog(null, "Input the platform");
+			if(input ==  null) {
+				break;
+			}
+			else if (input.isEmpty()) {
+				
+				JOptionPane.showMessageDialog(null,"No input given");
+			}
+			else{
+				if(checkChoice("Platform", input)) {
+				addChoice("Platform", input);
+			
+				}
+			}
+		}
+			try {
+				addCheckBoxItems();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+	}
+		if (e.getSource() == addSubjectButton) {
+		
+			while (true) {
+			input = JOptionPane.showInputDialog(null, "Input the Subject");
+			if(input ==  null) {
+				break;
+			}
+			else if (input.isEmpty()) {
+				
+				JOptionPane.showMessageDialog(null,"No input given");
+			}
+			else{
+				if(checkChoice("Subject", input)) {
+				addChoice("Subject", input);
+			
+				}
+			}
+		}
+			try {
+				addCheckBoxItems();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+	}
+		if (e.getSource() == addLanguageButton) {
+			
+			while (true) {
+			input = JOptionPane.showInputDialog(null, "Input the language");
+			if(input ==  null) {
+				break;
+			}
+			else if (input.isEmpty()) {
+				
+				JOptionPane.showMessageDialog(null,"No input given");
+			}
+			else{
+				if(checkChoice("Language", input)) {
+				addChoice("Language", input);
+			
+				}
+			}
+		}
+			try {
+				addCheckBoxItems();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+	}
+
 		if (e.getSource() == startButton) {
 			endDayButton.setEnabled(false);
 			date = getDate();
@@ -721,6 +857,7 @@ public class Main extends JFrame implements ActionListener {
 			startDayButton.setEnabled(false);
 
 		}
+		
 		
 
 	}
@@ -780,7 +917,8 @@ public class Main extends JFrame implements ActionListener {
 
 			if (restTime <= 0) {
 				File file = new File(
-						"C:\\Users\\jacob\\git\\habittracker\\Habit_Tracker\\src\\Danger Alarm Meme Sound Effect.wav");
+						
+						 "Danger Alarm Meme Sound Effect.wav");
 				AudioInputStream audioStream;
 				try {
 					audioStream = AudioSystem.getAudioInputStream(file);

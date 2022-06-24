@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,13 +65,18 @@ public class Main extends JFrame implements ActionListener {
 
 	/**
 	 * Create the frame.
+	 * @throws SQLException 
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Main() {
+	public Main() throws SQLException {
 		
 		writeDBFile();
 		connect();
-		createTables();
+		System.out.println(firstinit);
+		if(firstinit == true) {
+			createTables();
+			initDBRecords();
+		}
 		checkDay();
 		checkGap();
 		createGUI();
@@ -88,14 +94,19 @@ public class Main extends JFrame implements ActionListener {
 		});
 
 	}
+	File db;
+	boolean firstinit = false;
+	
 	/**
 	 * Creates the sqlite.db file
 	 */
 	public void writeDBFile() {
-		File db = new File("historytracker.db");
-		if(!checkDBExists(db)) {
+		 db = new File("historytracker.db");
+		if(!checkDBExists()) {
 			try {
 				db.createNewFile();
+				firstinit = true;
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -104,8 +115,28 @@ public class Main extends JFrame implements ActionListener {
 		}
 		
 	}
-	public boolean checkDBExists(File file) {
-		if(file.exists()) {
+	/**
+	 * Adds the none choices to the tables
+	 * @throws SQLException 
+	 */
+	public void initDBRecords() throws SQLException {
+		
+			sql = "INSERT INTO languages (language)VALUES('NONE')";
+			pst =  con.prepareStatement(sql);  
+			pst.execute();
+			sql = "INSERT INTO platforms (platform)VALUES('NONE')";
+			pst =  con.prepareStatement(sql);  
+			pst.execute();
+			sql = "INSERT INTO types (type)VALUES('NONE')";
+			pst =  con.prepareStatement(sql);  
+			pst.execute();
+			sql = "INSERT INTO subjects (subject)VALUES('NONE')";
+			pst =  con.prepareStatement(sql);  
+			pst.execute();
+		
+	}
+	public boolean checkDBExists() {
+		if(db.exists()) {
 			return true;
 		}
 		else {
@@ -143,7 +174,7 @@ public class Main extends JFrame implements ActionListener {
 
 	}
 	String sql; 
-	public void createTables() {
+	public void createTables() throws SQLException {
 		 sql = "CREATE TABLE IF NOT EXISTS history ('day_number'	INTEGER, 'day_state' TEXT"
 					+",'date_performed'	TEXT, "
 			        + "'type'	INTEGER,"
@@ -157,19 +188,69 @@ public class Main extends JFrame implements ActionListener {
 					+"'session_end'	TEXT,    "
 					+"'pause_reason'	TEXT )";
 				
-		 try {
-			pst =  con.prepareStatement(sql);  
-			pst.execute();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		pst =  con.prepareStatement(sql);  
+		pst.execute();
+		
+		sql = "CREATE TABLE IF NOT EXISTS types ('typeid' INTEGER PRIMARY KEY AUTOINCREMENT, 'type' TEXT )";
+		pst =  con.prepareStatement(sql);  
+		pst.execute();
+		sql = "CREATE TABLE IF NOT EXISTS platforms ('platformid' INTEGER PRIMARY KEY AUTOINCREMENT, 'platform' TEXT )";
+		pst =  con.prepareStatement(sql);  
+		pst.execute();
+		sql = "CREATE TABLE IF NOT EXISTS subjects ('subjectid' INTEGER PRIMARY KEY AUTOINCREMENT, 'subject' TEXT )";
+		pst =  con.prepareStatement(sql);  
+		pst.execute();
+		sql = "CREATE TABLE IF NOT EXISTS languages ('languageid' INTEGER PRIMARY KEY AUTOINCREMENT, 'language' TEXT )";
+		pst =  con.prepareStatement(sql);  
+		pst.execute();
+		
+
+	}
+	HashMap<Integer, String>typeMap;
+	HashMap<Integer, String>platformMap;
+	HashMap<Integer, String>subjectMap;
+	HashMap<Integer, String>languageMap;
+
+	@SuppressWarnings("unchecked")
+	public void addCheckBoxItems() throws SQLException {
+		typeMap = new HashMap<Integer, String>();    
+		platformMap = new HashMap<Integer, String>();
+		subjectMap = new HashMap<Integer, String>(); 
+		languageMap = new HashMap<Integer, String>();                                                           
+		sql = "SELECT typeid,type FROM 'types'";
+		rs = con.createStatement().executeQuery(sql);
+		while (rs.next()) {
+		typeMap.put(rs.getInt("typeid"), rs.getString("type"));
+		typeBox.addItem(rs.getString("type"));
 		}
+		sql = "SELECT platformid,platform FROM 'platforms'";
+		rs = con.createStatement().executeQuery(sql);
+		while (rs.next()) {
+		typeMap.put(rs.getInt("platformid"), rs.getString("platform"));
+		platformBox.addItem(rs.getString("platform"));
+		}
+		sql = "SELECT languageid,language FROM 'languages'";
+		rs = con.createStatement().executeQuery(sql);
+		while (rs.next()) {
+		languageMap.put(rs.getInt("languageid"), rs.getString("language"));
+		languageBox.addItem(rs.getString("language"));
+		}
+		sql = "SELECT subjectid,subject FROM 'subjects'";
+		rs = con.createStatement().executeQuery(sql);
+		while (rs.next()) {
+		subjectMap.put(rs.getInt("subjectid"), rs.getString("subject"));
+		subjectBox.addItem(rs.getString("subject"));
+		}
+		
+			
+		
+		
 	}
 	public void createGUI() {
 		getContentPane().setBackground(Color.DARK_GRAY);
 
 		JLabel lblNewLabel = new JLabel("UpSkill!");
-		lblNewLabel.setBounds(113, 17, 143, 34);
+		lblNewLabel.setBounds(138, 12, 143, 34);
 		lblNewLabel.setForeground(Color.WHITE);
 		lblNewLabel.setFont(new Font("Papyrus", Font.BOLD, 29));
 
@@ -190,32 +271,7 @@ public class Main extends JFrame implements ActionListener {
 		courseField.setBackground(Color.GRAY);
 		courseField.setColumns(10);
 
-		JPanel panel = new JPanel();
-		panel.setBounds(56, 248, 241, 203);
-		panel.setBackground(Color.LIGHT_GRAY);
-		panel.setLayout(new CardLayout(0, 0));
-
-		panel_1 = new JPanel();
-		panel_1.setBackground(Color.LIGHT_GRAY);
-		panel.add(panel_1, "init");
-		panel_1.setLayout(null);
-
-		startButton = new JButton("Start");
-		startButton.setBounds(30, 138, 89, 23);
-		panel_1.add(startButton);
-		startButton.addActionListener(this);
-		timeLabel = new JLabel("");
-		timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		timeLabel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		timeLabel.setFont(new Font("Verdana", Font.PLAIN, 35));
-		timeLabel.setBounds(30, 36, 184, 91);
-		panel_1.add(timeLabel);
-
-		String[] platforms = { "None", "Youtube", "Coursera", "CodeCademy", "CodeWars", "Kaggle", "The Internet",
-				"DataCamp", "Udemy", "FreeCodeCamp", "Physical Book", "Coding Workspace", "Others" };
-		for (String platform : platforms) {
-			platformBox.addItem(platform);
-		}
+		
 		lblNewLabel_3 = new JLabel("Subject");
 		lblNewLabel_3.setBounds(56, 163, 66, 15);
 		lblNewLabel_3.setForeground(Color.WHITE);
@@ -223,26 +279,14 @@ public class Main extends JFrame implements ActionListener {
 		subjectBox = new JComboBox();
 		subjectBox.setBounds(139, 160, 158, 20);
 		subjectBox.setBackground(Color.GRAY);
-		String[] subjects = { "None", "Web Development", "Software Development", "Data Science", "Programming", "Math", "Science", "Philosophy",
-				"Others" };
-		for (String subject : subjects) {
-			subjectBox.addItem(subject);
-		}
+		
 
 		languageBox = new JComboBox();
 		languageBox.setBounds(138, 190, 158, 20);
 		languageBox.setBackground(Color.GRAY);
-		String[] languages = { "None", "Python", "R", "Rust", "SQL", "Scala", "Java", "Unity/C#", "GoLang", "C++", "C",
-				"JavaScript/HTML/CSS", "Others" };
-		for (String language : languages) {
-			languageBox.addItem(language);
-		}
+
 		typeBox = new JComboBox();
 		typeBox.setBounds(138, 98, 158, 20);
-		String[] types = { "None", "Project", "Academic", "Self-Learning", "Leisure" };
-		for (String type : types) {
-			typeBox.addItem(type);
-		}
 
 		typeBox.setBackground(Color.GRAY);
 		typeBox.addActionListener(this);
@@ -254,26 +298,14 @@ public class Main extends JFrame implements ActionListener {
 		lblNewLabel_1_1.setBounds(56, 101, 72, 15);
 		lblNewLabel_1_1.setForeground(Color.WHITE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 364, 531);
-		stopButton = new JButton("Stop");
-		stopButton.setBounds(129, 138, 89, 23);
-		panel_1.add(stopButton);
-
-		pauseButton = new JButton("Pause");
-		pauseButton.setBounds(30, 169, 89, 23);
-		panel_1.add(pauseButton);
-
-		restButton = new JButton("Rest");
-		restButton.setBounds(129, 169, 89, 23);
-
-		panel_1.add(restButton);
+		setBounds(100, 100, 397, 544);
 
 		startDayButton = new JButton("Start Day");
-		startDayButton.setBounds(56, 62, 113, 25);
+		startDayButton.setBounds(79, 58, 113, 25);
 		startDayButton.setEnabled(true);
 
 		endDayButton = new JButton("End Day");
-		endDayButton.setBounds(186, 62, 111, 25);
+		endDayButton.setBounds(215, 58, 111, 25);
 		endDayButton.setEnabled(true);
 
 		JScrollPane scrollPane = new JScrollPane();
@@ -297,12 +329,60 @@ public class Main extends JFrame implements ActionListener {
 		getContentPane().add(languageBox);
 		getContentPane().add(titleField);
 		getContentPane().add(courseField);
-		getContentPane().add(panel);
+		
+		addTypeButton = new JButton("Add");
+		addTypeButton.setBounds(305, 96, 80, 25);
+		getContentPane().add(addTypeButton);
+		
+				panel_1 = new JPanel();
+				panel_1.setBounds(67, 260, 262, 222);
+				getContentPane().add(panel_1);
+				panel_1.setBackground(Color.LIGHT_GRAY);
+				panel_1.setLayout(null);
+				
+						startButton = new JButton("Start");
+						startButton.setBounds(30, 138, 89, 23);
+						panel_1.add(startButton);
+						startButton.addActionListener(this);
+						timeLabel = new JLabel("");
+						timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+						timeLabel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+						timeLabel.setFont(new Font("Verdana", Font.PLAIN, 35));
+						timeLabel.setBounds(42, 32, 184, 91);
+						panel_1.add(timeLabel);
+						stopButton = new JButton("Stop");
+						stopButton.setBounds(129, 138, 89, 23);
+						panel_1.add(stopButton);
+						
+								pauseButton = new JButton("Pause");
+								pauseButton.setBounds(30, 169, 89, 23);
+								panel_1.add(pauseButton);
+								
+										restButton = new JButton("Rest");
+										restButton.setBounds(129, 169, 89, 23);
+										
+												panel_1.add(restButton);
+												
+												addPlatformButton = new JButton("Add");
+												addPlatformButton.setBounds(305, 127, 80, 25);
+												getContentPane().add(addPlatformButton);
+												
+												addSubjectButton = new JButton("Add");
+												addSubjectButton.setBounds(305, 158, 80, 25);
+												getContentPane().add(addSubjectButton);
+												
+												addLanguageButton = new JButton("Add");
+												addLanguageButton.setBounds(305, 188, 80, 25);
+												getContentPane().add(addLanguageButton);
 		restButton.addActionListener(this);
 		pauseButton.addActionListener(this);
 		stopButton.addActionListener(this);
 		startDayButton.addActionListener(this);
 		endDayButton.addActionListener(this);
+		addTypeButton.addActionListener(this);
+		addPlatformButton.addActionListener(this);
+		addSubjectButton.addActionListener(this);
+		addLanguageButton.addActionListener(this);
 		setLocationRelativeTo(null);
 		if (dayState.equals("STARTED") || dayState.equals("IN PROGRESS")) {
 			startDayButton.setEnabled(false);
@@ -313,6 +393,12 @@ public class Main extends JFrame implements ActionListener {
 			startButton.setEnabled(false);
 			endDayButton.setEnabled(false);
 			startDayButton.setEnabled(true);
+		}
+		try {
+			addCheckBoxItems();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	/**
@@ -441,11 +527,17 @@ public class Main extends JFrame implements ActionListener {
 		dayState = "";
 		System.out.println(dayNumber + "3");
 		try {
-			pst = con.prepareStatement(
-					"SELECT `day_number`, `day_state`  FROM `habit_tracker` ORDER BY `dateperformed` DESC LIMIT 1");
-			rs = pst.executeQuery();
-			rs.next();
-			dayState = rs.getString("day_state");
+			sql = "SELECT day_state FROM 'history'";
+			rs = con.createStatement().executeQuery(sql);
+			try {
+				rs.next();
+				dayState = rs.getString("day_state");
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+			
+			
 			System.out.print(dayState);
 			try {
 
@@ -498,7 +590,7 @@ public class Main extends JFrame implements ActionListener {
 		System.out.println(dayNumber);
 		try {
 			pst = con.prepareStatement(
-					"insert into `habit_tracker`(`day_number`, `day_state`, `dateperformed`, `type`, `platform`, `subject`, `course`, `language`, `time_elapsed`, `pause_duration`, `rest_duration`, `session_end`, `pauseReason`)"
+					"insert into history(`day_number`, `day_state`, `date_perfomed`, `type`, `platform`, `subject`, `course`, `language`, `time_elapsed`, `pause_duration`, `rest_duration`, `session_end`, `pauseReason`)"
 							+ " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			pst.setInt(1, dayNumber);
 			pst.setString(2, dayStatePass);
@@ -533,15 +625,15 @@ public class Main extends JFrame implements ActionListener {
 	}
 
 	public void endDay() throws SQLException {
-		pst = con.prepareStatement("SELECT `day_state` FROM `habit_tracker` ORDER BY dateperformed DESC");
+		pst = con.prepareStatement("SELECT `day_state` FROM history ORDER BY dateperformed DESC");
 		rs = pst.executeQuery();
 		rs.next();
 		dayState = rs.getString("day_state");
 		try {
 
 			if (rs.getString("day_state") != "SKIPPED") {
-				pst = con.prepareStatement("UPDATE `habit_tracker` SET `day_state` = 'ENDED' WHERE `dateperformed` = "
-						+ "(SELECT MAX(`dateperformed`) from `habit_tracker`)");
+				pst = con.prepareStatement("UPDATE history SET `day_state` = 'ENDED' WHERE `date_perfomed` = "
+						+ "(SELECT MAX(`date_perfomed`) from history)");
 				pst.executeUpdate();
 			}
 
@@ -554,7 +646,7 @@ public class Main extends JFrame implements ActionListener {
 	public void checkGap() {
 		try {
 
-			pst = con.prepareStatement("SELECT MAX(`dateperformed`) as date FROM `habit_tracker`");
+			pst = con.prepareStatement("SELECT MAX(`date_performed`) as date FROM `history`");
 			rs = pst.executeQuery();
 			rs.next();
 			Timestamp lastDate = rs.getTimestamp("date");
@@ -571,7 +663,7 @@ public class Main extends JFrame implements ActionListener {
 
 				SimpleDateFormat tempformat = new SimpleDateFormat("yyyy-MM-dd");
 				pst = con.prepareStatement(
-						"INSERT INTO `habit_tracker`(day_number,dateperformed, day_state) VALUES (?,?,?)");
+						"INSERT INTO history(day_number,dateperformed, day_state) VALUES (?,?,?)");
 				pst.setInt(1, dayNumber);
 				pst.setString(3, "SKIPPED");
 				pst.setString(2, tempformat.format(lastDateTS + tempDay * 1000 * 60 * 60));
@@ -593,6 +685,9 @@ public class Main extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
+		if (e.getSource() == addTypeButton) {
+			JOptionPane.showMessageDialog(null,"in");
+		}
 		if (e.getSource() == startButton) {
 			endDayButton.setEnabled(false);
 			date = getDate();
@@ -626,32 +721,7 @@ public class Main extends JFrame implements ActionListener {
 			startDayButton.setEnabled(false);
 
 		}
-		if (e.getSource() == typeBox) {
-
-			if (typeBox.getSelectedItem().equals("Leisure")) {
-				System.out.println("g");
-				platformBox.removeAllItems();
-				platformBox.addItem("None");
-				platformBox.addItem("Physical");
-				platformBox.addItem("Online");
-				platformBox.setSelectedItem("None");
-				subjectBox.setEnabled(false);
-				languageBox.setEnabled(false);
-				subjectBox.setSelectedItem("None");
-				subjectBox.setSelectedItem("None");
-
-			} else {
-				subjectBox.setEnabled(true);
-				languageBox.setEnabled(true);
-				platformBox.removeAllItems();
-				String[] platforms = { "None", "Youtube", "Coursera", "CodeCademy", "CodeWars", "Kaggle",
-						"The Internet", "DataCamp", "Udemy", "FreeCodeCamp", "Physical Book", "Others" };
-				for (String platform : platforms) {
-					platformBox.addItem(platform);
-					platformBox.setSelectedItem("None");
-				}
-			}
-		}
+		
 
 	}
 
@@ -793,4 +863,8 @@ public class Main extends JFrame implements ActionListener {
 	String date;
 	JLabel restLabel;
 	private JScrollPane scrollPane_1;
+	private JButton addTypeButton;
+	private JButton addPlatformButton;
+	private JButton addSubjectButton;
+	private JButton addLanguageButton;
 }

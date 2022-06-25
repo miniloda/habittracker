@@ -14,6 +14,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -256,6 +259,7 @@ public class Main extends JFrame implements ActionListener {
 		
 	}
 	public void createGUI() {
+		dayState = "";
 		getContentPane().setBackground(Color.DARK_GRAY);
 
 		JLabel lblNewLabel = new JLabel("UpSkill!");
@@ -874,7 +878,10 @@ public class Main extends JFrame implements ActionListener {
 
 		if (e.getSource() == startButton) {
 			endDayButton.setEnabled(false);
-			date = getDate();
+			 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss");
+			LocalDateTime dateLocal = LocalDateTime.now();
+			date = dtf.format(dateLocal);
+			
 			pauseTimer.stop();
 			start();
 		}

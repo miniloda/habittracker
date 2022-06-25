@@ -80,7 +80,6 @@ public class Main extends JFrame implements ActionListener {
 		}
 		
 		checkDay();
-		System.out.println("In?");
 		checkGap();
 		createGUI();
 
@@ -105,12 +104,11 @@ public class Main extends JFrame implements ActionListener {
 	 */
 	public void writeDBFile() {
 		 db = new File("historytracker.db");
-		 System.out.printf("File is located at %s%n", db.getAbsolutePath());
-		if(!checkDBExists()) {
+		 if(!checkDBExists()) {
 			try {
 				db.createNewFile();
 				firstinit = true;
-				System.out.printf("File is located at %s%n", db.getAbsolutePath());
+
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -123,6 +121,7 @@ public class Main extends JFrame implements ActionListener {
 	/**
 	 * Adds the none choices to the tables
 	 * @throws SQLException 
+	 * 
 	 */
 	public void initDBRecords() throws SQLException {
 		
@@ -537,7 +536,7 @@ public class Main extends JFrame implements ActionListener {
 		dayState = "";
 		
 		try {
-			sql = "SELECT day_state, day_number FROM 'history'";
+			sql = "SELECT day_state, day_number, MAX(date_performed) FROM 'history' ";
 			rs = con.createStatement().executeQuery(sql);
 			try {
 				rs.next();
@@ -605,7 +604,6 @@ public class Main extends JFrame implements ActionListener {
 		for (Entry<Integer, String> entry: typeMap.entrySet()) {
 			
 			if (entry.getValue().equals(type)) {
-				System.out.println(entry.getValue());
 				typeid = entry.getKey();
             }
         
@@ -613,9 +611,8 @@ public class Main extends JFrame implements ActionListener {
 		for (Entry<Integer, String> entry: platformMap.entrySet()) {
 			
 			if (entry.getValue().equals(platform)) {
-				System.out.println(entry.getValue());
 				platformid = entry.getKey();
-				System.out.println("platformd id:" + platformid);
+
      
             }
         
@@ -623,17 +620,16 @@ public class Main extends JFrame implements ActionListener {
 		for (Entry<Integer, String> entry: languageMap.entrySet()) {
 			
 			if (entry.getValue().equals(language)) {
-				System.out.println(entry.getValue());
 				languageid = entry.getKey();
-               
+				
             }
         
 		}
 		for (Entry<Integer, String> entry: subjectMap.entrySet()) {
 			System.out.println(entry.getValue());
-			if (entry.getValue().equals(type)) {
-				System.out.println(entry.getValue());
+			if (entry.getValue().equals(subject)) {
 				subjectid = entry.getKey();
+	               
                 
             }
         
@@ -660,7 +656,7 @@ public class Main extends JFrame implements ActionListener {
 			pst.setString(13, pauseReason.toString());
 
 			pst.executeUpdate();
-
+			JOptionPane.showMessageDialog(null,"Session ended and recorded successfully.");
 		} catch (SQLException ex) {
 			
 			ex.printStackTrace();
@@ -676,7 +672,7 @@ public class Main extends JFrame implements ActionListener {
 	}
 
 	public void endDay() throws SQLException {
-		pst = con.prepareStatement("SELECT `day_state` FROM history ORDER BY date_performed DESC");
+		pst = con.prepareStatement("SELECT `day_state` FROM history ORDER BY date_performed DESC limit 1");
 		rs = pst.executeQuery();
 		rs.next();
 		dayState = rs.getString("day_state");

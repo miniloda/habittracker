@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -73,7 +74,7 @@ public class Main extends JFrame implements ActionListener {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Main() throws SQLException {
-		
+		dayState = "";
 		writeDBFile();
 		connect();
 		System.out.println(firstinit);
@@ -85,8 +86,6 @@ public class Main extends JFrame implements ActionListener {
 		checkDay();
 		checkGap();
 		createGUI();
-
-		
 		init();
 		this.addWindowListener(new java.awt.event.WindowAdapter() {
 			@Override
@@ -152,14 +151,6 @@ public class Main extends JFrame implements ActionListener {
 		
 	}
 	
-	
-
-	JComboBox languageBox;
-	JLabel titleLabel;
-	JComboBox typeBox;
-	JButton startDayButton;
-	JButton endDayButton;
-
 	/**
 	 * connect to mySQL database
 	 */
@@ -213,11 +204,11 @@ public class Main extends JFrame implements ActionListener {
 		
 
 	}
-	HashMap<Integer, String>typeMap;
-	HashMap<Integer, String>platformMap;
-	HashMap<Integer, String>subjectMap;
-	HashMap<Integer, String>languageMap;
-
+	
+/**
+ * Adds the contents of the checkboxes
+ * @throws SQLException
+ */
 	@SuppressWarnings("unchecked")
 	public void addCheckBoxItems() throws SQLException {
 		typeBox.removeAllItems();
@@ -258,8 +249,11 @@ public class Main extends JFrame implements ActionListener {
 		
 		
 	}
+	/**
+	 * Creates the graphic interface
+	 */
 	public void createGUI() {
-		dayState = "";
+		
 		getContentPane().setBackground(Color.DARK_GRAY);
 
 		JLabel lblNewLabel = new JLabel("UpSkill!");
@@ -568,7 +562,9 @@ public class Main extends JFrame implements ActionListener {
 		}
 
 	}
-
+/**
+ * Gets the details of every field
+ */
 	void getDetails() {
 		type = (String) typeBox.getSelectedItem();
 		platform = (String) platformBox.getSelectedItem();
@@ -597,12 +593,7 @@ public class Main extends JFrame implements ActionListener {
 		}
 	}
 
-	String dayStatePass;
-	String language;
-	int typeid;
-	int platformid;
-	int subjectid;
-	int languageid;
+	;
 	void sendToDB() {
 		
 		for (Entry<Integer, String> entry: typeMap.entrySet()) {
@@ -692,6 +683,29 @@ public class Main extends JFrame implements ActionListener {
 			ex.printStackTrace();
 		}
 
+	}
+	float total;
+	/**
+	 * When the End day button is clicked, this will calculate the total time for the given day
+	 */
+	public float calculateDay() {
+		try {
+			pst = con.prepareStatement("SELECT time_elapsed FROM history WHERE day_number = " + dayNumber);
+			rs = pst.executeQuery();
+			total = 0;
+			while(rs.next()) {
+				Timestamp test = new Timestamp(0);
+				System.out.println(test);
+				Timestamp totalDay = Timestamp.valueOf("1970-01-01 "+ rs.getString("time_elapsed"));
+				total += (totalDay.getTime()+(8*60*60*1000))/(3600*1000);
+				
+			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return total/(3600);//returns the hours
 	}
 
 	public void checkGap() {
@@ -896,13 +910,14 @@ public class Main extends JFrame implements ActionListener {
 			rest();
 		}
 		if (e.getSource() == endDayButton) {
+			
 			try {
 				endDay();
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			JOptionPane.showMessageDialog(null, "Great Job today, self!");
+			JOptionPane.showMessageDialog(null, "Great Job today, self! Total time is: " + calculateDay() + " hours");
 			System.exit(0);
 		}
 		if (e.getSource() == startDayButton) {
@@ -916,33 +931,16 @@ public class Main extends JFrame implements ActionListener {
 		
 
 	}
-
-	JComboBox platformBox;
-	int elapsedTime = 0;
-	double pauseDuration = 0;
-	int seconds = 0;
-	int minutes = 0;
-	int hours = 0;
-	double rest;
-	double time;
-	int restDuration = 0;
-	int restTime = 0;
-	int restMinute = 0;
-	int restSecond = 0;
-	int restHour = 0;
-	int timesUpClose = 0; // increments when JOPtionPaneDialog is opened, will wait for user input, and if
-							// a minute has passed and no input from the user, automatic stop session
-	boolean started = false;
-	String restSecString = String.format("%02d", restSecond);
-	String restMinString = String.format("%02d", restMinute);
-	String restHourString = String.format("%02d", restHour);
-	String seconds_string = String.format("%02d", seconds);
-	String minutes_string = String.format("%02d", minutes);
-	String hours_string = String.format("%02d", hours);
-	String sessionEnd;
+	
 	Timer timer = new Timer(1000, new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			restSecString = String.format("%02d", restSecond); 
+			restMinString = String.format("%02d", restMinute); 
+			restHourString = String.format("%02d", restHour);  
+			seconds_string = String.format("%02d", seconds);   
+			minutes_string = String.format("%02d", minutes);   
+			hours_string = String.format("%02d", hours);       
 			elapsedTime = elapsedTime + 1000;
 			hours = (elapsedTime / 3600000);
 			minutes = (elapsedTime / 60000) % 60;
@@ -971,9 +969,8 @@ public class Main extends JFrame implements ActionListener {
 			restLabel.setText(restHourString + ":" + restMinString + ":" + restSecString);
 
 			if (restTime <= 0) {
-				File file = new File(
-						
-						 "Danger Alarm Meme Sound Effect.wav");
+				URL url = getClass().getResource("Ring.wav");
+				File file = new File(url.getPath());
 				AudioInputStream audioStream;
 				try {
 					audioStream = AudioSystem.getAudioInputStream(file);
@@ -1060,4 +1057,43 @@ public class Main extends JFrame implements ActionListener {
 	private JButton addPlatformButton;
 	private JButton addSubjectButton;
 	private JButton addLanguageButton;
+	String dayStatePass;
+	String language;
+	int typeid;
+	int platformid;
+	int subjectid;
+	int languageid;
+	JComboBox platformBox;
+	int elapsedTime = 0;
+	double pauseDuration = 0;
+	int seconds = 0;
+	int minutes = 0;
+	int hours = 0;
+	double rest;
+	double time;
+	int restDuration = 0;
+	int restTime = 0;
+	int restMinute = 0;
+	int restSecond = 0;
+	int restHour = 0;
+	int timesUpClose = 0; // increments when JOPtionPaneDialog is opened, will wait for user input, and if
+							// a minute has passed and no input from the user, automatic stop session
+	boolean started = false;
+	String restSecString;
+	String restMinString;
+	String restHourString;
+	String seconds_string;
+	String minutes_string; 
+	String hours_string; 
+	String sessionEnd;
+	HashMap<Integer, String>typeMap;
+	HashMap<Integer, String>platformMap;
+	HashMap<Integer, String>subjectMap;
+	HashMap<Integer, String>languageMap;
+	JComboBox languageBox;
+	JLabel titleLabel;
+	JComboBox typeBox;
+	JButton startDayButton;
+	JButton endDayButton;
+
 }

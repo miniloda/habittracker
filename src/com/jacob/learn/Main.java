@@ -593,7 +593,9 @@ public class Main extends JFrame implements ActionListener {
 		}
 	}
 
-	;
+	/**
+	 * Sends the session to the database
+	 */
 	void sendToDB() {
 		
 		for (Entry<Integer, String> entry: typeMap.entrySet()) {
@@ -653,8 +655,9 @@ public class Main extends JFrame implements ActionListener {
 			pst.executeUpdate();
 			JOptionPane.showMessageDialog(null,"Session ended and recorded successfully.");
 		} catch (SQLException ex) {
+			File log = new File("log.txt");
 			
-			ex.printStackTrace();
+			
 		}
 		
 		clearFields();
@@ -697,7 +700,7 @@ public class Main extends JFrame implements ActionListener {
 				Timestamp test = new Timestamp(0);
 				System.out.println(test);
 				Timestamp totalDay = Timestamp.valueOf("1970-01-01 "+ rs.getString("time_elapsed"));
-				total += (totalDay.getTime()+(8*60*60*1000))/(3600*1000);
+				total += (totalDay.getTime()+(8*60*60*1000));
 				
 			}
 			
@@ -705,7 +708,7 @@ public class Main extends JFrame implements ActionListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return total/(3600);//returns the hours
+		return total/(3600*1000);//returns the hours
 	}
 
 	public void checkGap() {

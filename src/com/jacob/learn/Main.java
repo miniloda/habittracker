@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.StandardOpenOption;
+
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -655,7 +657,39 @@ public class Main extends JFrame implements ActionListener {
 			pst.executeUpdate();
 			JOptionPane.showMessageDialog(null,"Session ended and recorded successfully.");
 		} catch (SQLException ex) {
-			File log = new File("log.txt");
+
+			File error = new File("error.log");
+			if(!error.exists()) {
+				try {
+					error.createNewFile();
+
+					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+			FileWriter logger;
+			try {
+				logger = new FileWriter(error,true);
+				logger.write("Error occured. SQL Statement is as follows:\n----START OF SQL STATEMENT----\n"
+						+ "\"insert into history(day_number, `day_state`, `date_performed`, "
+						+ "`type`, `platform`, `subject`, `title`, `language`, `time_elapsed`, "
+						+ "`pause_duration`, `rest_duration`, `session_end`, `pause_reason`)"
+						+ String.format("VALUES(%d,%s,%s,%d,%d,%d,%s,%d,%s,%s,%s,%s,%s)",dayNumber, dayStatePass, date,typeid,platformid,subjectid,title,languageid, timeDur,
+						pauseDur,restDur,sessionEnd, pauseReason) + "\n----END OF SQL STATEMENT----\n\n");
+				logger.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			String path = error.getAbsolutePath();
+			JOptionPane.showMessageDialog(null,"An erorr occured. Please refer to the log file in "+ path);
+			
+			
+
 			
 			
 		}

@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.StandardOpenOption;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -637,7 +638,7 @@ public class Main extends JFrame implements ActionListener {
 			//Send the session to history
 			pst = con.prepareStatement(
 					"insert into history(day_number, `day_state`, `date_performed`, `type`, `platform`, `subject`, `title`, `language`, `time_elapsed`, `pause_duration`, `rest_duration`, `session_end`, `pause_reason`)"
-							+ " VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
+							+ " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			pst.setInt(1, dayNumber);
 			pst.setString(2, dayStatePass);
 			pst.setString(3, date);
@@ -669,8 +670,13 @@ public class Main extends JFrame implements ActionListener {
 			}
 			FileWriter logger;
 			try {
-				logger = new FileWriter("error.log");
-				logger.write("G?");
+				logger = new FileWriter(error,true);
+				logger.write("Error occured. SQL Statement is as follows:\n----START OF SQL STATEMENT----\n"
+						+ "\"insert into history(day_number, `day_state`, `date_performed`, "
+						+ "`type`, `platform`, `subject`, `title`, `language`, `time_elapsed`, "
+						+ "`pause_duration`, `rest_duration`, `session_end`, `pause_reason`)"
+						+ String.format("VALUES(%d,%s,%s,%d,%d,%d,%s,%d,%s,%s,%s,%s,%s)",dayNumber, dayStatePass, date,typeid,platformid,subjectid,title,languageid, timeDur,
+						pauseDur,restDur,sessionEnd, pauseReason) + "\n----END OF SQL STATEMENT----\n\n");
 				logger.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

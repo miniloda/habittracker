@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.StandardOpenOption;
+
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -656,6 +657,7 @@ public class Main extends JFrame implements ActionListener {
 			pst.executeUpdate();
 			JOptionPane.showMessageDialog(null,"Session ended and recorded successfully.");
 		} catch (SQLException ex) {
+
 			File error = new File("error.log");
 			if(!error.exists()) {
 				try {
@@ -687,6 +689,7 @@ public class Main extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(null,"An erorr occured. Please refer to the log file in "+ path);
 			
 			
+
 			
 			
 		}

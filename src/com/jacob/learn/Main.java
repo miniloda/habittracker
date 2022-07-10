@@ -127,6 +127,7 @@ public class Main extends JFrame implements ActionListener {
 			titleLabel.setForeground(Color.WHITE);
 			languageLabel.setForeground(Color.WHITE);
 			upSkillLabel.setForeground(Color.WHITE);
+			getContentPane().setBackground(Color.DARK_GRAY);
 		}else {
 			typeLabel.setForeground(Color.BLACK);
 			platformLabel.setForeground(Color.BLACK);
@@ -134,6 +135,7 @@ public class Main extends JFrame implements ActionListener {
 			titleLabel.setForeground(Color.BLACK);
 			languageLabel.setForeground(Color.BLACK);
 			upSkillLabel.setForeground(Color.BLACK);
+			getContentPane().setBackground(Color.WHITE);
 		}
 		
 	}
@@ -359,7 +361,7 @@ public class Main extends JFrame implements ActionListener {
 		getContentPane().add(addTypeButton);
 		
 				panel_1 = new JPanel();
-				panel_1.setBounds(80, 248, 262, 222);
+				panel_1.setBounds(89, 248, 262, 222);
 				getContentPane().add(panel_1);
 				panel_1.setBackground(Color.LIGHT_GRAY);
 				panel_1.setLayout(null);
@@ -401,11 +403,11 @@ public class Main extends JFrame implements ActionListener {
 												
 												JLabel themeLabel = new JLabel("Theme");
 												themeLabel.setForeground(SystemColor.text);
-												themeLabel.setBounds(305, 12, 70, 15);
+												themeLabel.setBounds(294, 12, 70, 15);
 												getContentPane().add(themeLabel);
 												
 												themeBox = new JComboBox();
-												themeBox.setBounds(357, 7, 58, 24);
+												themeBox.setBounds(348, 7, 80, 24);
 												getContentPane().add(themeBox);
 		restButton.addActionListener(this);
 		pauseButton.addActionListener(this);

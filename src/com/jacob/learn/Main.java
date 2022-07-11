@@ -1,6 +1,5 @@
 package com.jacob.learn;
 
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -9,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.StandardOpenOption;
 
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -17,23 +15,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BorderFactory;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -48,6 +40,8 @@ import javax.swing.border.BevelBorder;
 
 import java.sql.*;
 import java.io.FileWriter;
+import javax.swing.JToggleButton;
+import java.awt.SystemColor;
 public class Main extends JFrame implements ActionListener {
 	private JTextField titleField;
 	Connection con;
@@ -74,7 +68,6 @@ public class Main extends JFrame implements ActionListener {
 	 * Create the frame.
 	 * @throws SQLException 
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Main() throws SQLException {
 		dayState = "";
 		writeDBFile();
@@ -102,12 +95,28 @@ public class Main extends JFrame implements ActionListener {
 	}
 	File db;
 	boolean firstinit = false;
-	
+	public String generatePath ()  throws Exception{
+		return new File(Main.class.getProtectionDomain().getCodeSource().getLocation()
+			    .toURI()).getPath();
+	}
+	String path = "~";
 	/**
 	 * Creates the sqlite.db file
 	 */
 	public void writeDBFile() {
-		 db = new File("historytracker.db");
+		
+		
+		try {
+			path = generatePath();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		File theDir = new File(path+"/source");
+		if (!theDir.exists()){
+		    theDir.mkdirs();
+		}
+		 db = new File(path+"/source/historytracker.db");
 		 if(!checkDBExists()) {
 			try {
 				db.createNewFile();
@@ -119,6 +128,30 @@ public class Main extends JFrame implements ActionListener {
 				e.printStackTrace();
 			}
 			
+		}
+		
+	}
+	private JComboBox themeBox;
+	/**
+	 * Sets the theme
+	 */
+	public void setTheme(String theme) {
+		if(theme.equals("Dark")) {
+			typeLabel.setForeground(Color.WHITE);
+			platformLabel.setForeground(Color.WHITE);
+			subjectLabel.setForeground(Color.WHITE);
+			titleLabel.setForeground(Color.WHITE);
+			languageLabel.setForeground(Color.WHITE);
+			upSkillLabel.setForeground(Color.WHITE);
+			getContentPane().setBackground(Color.DARK_GRAY);
+		}else {
+			typeLabel.setForeground(Color.BLACK);
+			platformLabel.setForeground(Color.BLACK);
+			subjectLabel.setForeground(Color.BLACK);
+			titleLabel.setForeground(Color.BLACK);
+			languageLabel.setForeground(Color.BLACK);
+			upSkillLabel.setForeground(Color.BLACK);
+			getContentPane().setBackground(Color.WHITE);
 		}
 		
 	}
@@ -257,15 +290,15 @@ public class Main extends JFrame implements ActionListener {
 	public void createGUI() {
 		
 		getContentPane().setBackground(Color.DARK_GRAY);
+		
+		upSkillLabel = new JLabel("UpSkill!");
+		upSkillLabel.setBounds(153, 12, 143, 34);
+		upSkillLabel.setForeground(Color.WHITE);
+		upSkillLabel.setFont(new Font("Papyrus", Font.BOLD, 29));
 
-		JLabel lblNewLabel = new JLabel("UpSkill!");
-		lblNewLabel.setBounds(153, 12, 143, 34);
-		lblNewLabel.setForeground(Color.WHITE);
-		lblNewLabel.setFont(new Font("Papyrus", Font.BOLD, 29));
-
-		JLabel lblNewLabel_1 = new JLabel("Platform");
-		lblNewLabel_1.setBounds(56, 132, 72, 15);
-		lblNewLabel_1.setForeground(Color.WHITE);
+		platformLabel = new JLabel("Platform");
+		platformLabel.setBounds(56, 132, 72, 15);
+		platformLabel.setForeground(Color.WHITE);
 
 		platformBox = new JComboBox();
 		platformBox.setBounds(138, 129, 158, 20);
@@ -281,9 +314,9 @@ public class Main extends JFrame implements ActionListener {
 		titleField.setColumns(10);
 
 		
-		lblNewLabel_3 = new JLabel("Subject");
-		lblNewLabel_3.setBounds(56, 163, 66, 15);
-		lblNewLabel_3.setForeground(Color.WHITE);
+		subjectLabel = new JLabel("Subject");
+		subjectLabel.setBounds(56, 163, 66, 15);
+		subjectLabel.setForeground(Color.WHITE);
 
 		subjectBox = new JComboBox();
 		subjectBox.setBounds(139, 160, 158, 20);
@@ -299,13 +332,13 @@ public class Main extends JFrame implements ActionListener {
 
 		typeBox.setBackground(Color.GRAY);
 		typeBox.addActionListener(this);
-		JLabel lblNewLabel_3_1 = new JLabel("Language");
-		lblNewLabel_3_1.setBounds(56, 193, 86, 15);
-		lblNewLabel_3_1.setForeground(Color.WHITE);
-
-		JLabel lblNewLabel_1_1 = new JLabel("Type");
-		lblNewLabel_1_1.setBounds(56, 101, 72, 15);
-		lblNewLabel_1_1.setForeground(Color.WHITE);
+		languageLabel = new JLabel("Language");
+		languageLabel.setBounds(56, 193, 86, 15);
+		languageLabel.setForeground(Color.WHITE);
+		
+		typeLabel = new JLabel("Type");
+		typeLabel.setBounds(56, 101, 72, 15);
+		typeLabel.setForeground(Color.WHITE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 440, 537);
 
@@ -325,16 +358,16 @@ public class Main extends JFrame implements ActionListener {
 		getContentPane().setLayout(null);
 		getContentPane().add(scrollPane);
 		getContentPane().add(scrollPane_1);
-		getContentPane().add(lblNewLabel);
+		getContentPane().add(upSkillLabel);
 		getContentPane().add(startDayButton);
 		getContentPane().add(endDayButton);
-		getContentPane().add(lblNewLabel_1_1);
+		getContentPane().add(typeLabel);
 		getContentPane().add(typeBox);
-		getContentPane().add(lblNewLabel_1);
+		getContentPane().add(platformLabel);
 		getContentPane().add(platformBox);
-		getContentPane().add(lblNewLabel_3);
+		getContentPane().add(subjectLabel);
 		getContentPane().add(subjectBox);
-		getContentPane().add(lblNewLabel_3_1);
+		getContentPane().add(languageLabel);
 		getContentPane().add(languageBox);
 		getContentPane().add(titleLabel);
 		getContentPane().add(titleField);
@@ -343,34 +376,34 @@ public class Main extends JFrame implements ActionListener {
 		addTypeButton.setBounds(305, 96, 80, 25);
 		getContentPane().add(addTypeButton);
 		
-				panel_1 = new JPanel();
-				panel_1.setBounds(98, 250, 262, 222);
-				getContentPane().add(panel_1);
-				panel_1.setBackground(Color.LIGHT_GRAY);
-				panel_1.setLayout(null);
+				timerPanel = new JPanel();
+				timerPanel.setBounds(89, 248, 262, 222);
+				getContentPane().add(timerPanel);
+				timerPanel.setBackground(Color.LIGHT_GRAY);
+				timerPanel.setLayout(null);
 				
 						startButton = new JButton("Start");
-						startButton.setBounds(30, 138, 89, 23);
-						panel_1.add(startButton);
+						startButton.setBounds(42, 138, 89, 23);
+						timerPanel.add(startButton);
 						startButton.addActionListener(this);
 						timeLabel = new JLabel("");
 						timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 						timeLabel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 						timeLabel.setFont(new Font("Verdana", Font.PLAIN, 35));
 						timeLabel.setBounds(42, 32, 184, 91);
-						panel_1.add(timeLabel);
+						timerPanel.add(timeLabel);
 						stopButton = new JButton("Stop");
-						stopButton.setBounds(129, 138, 89, 23);
-						panel_1.add(stopButton);
+						stopButton.setBounds(137, 138, 89, 23);
+						timerPanel.add(stopButton);
 						
 								pauseButton = new JButton("Pause");
-								pauseButton.setBounds(30, 169, 89, 23);
-								panel_1.add(pauseButton);
+								pauseButton.setBounds(42, 173, 89, 23);
+								timerPanel.add(pauseButton);
 								
 										restButton = new JButton("Rest");
-										restButton.setBounds(129, 169, 89, 23);
+										restButton.setBounds(137, 173, 89, 23);
 										
-												panel_1.add(restButton);
+												timerPanel.add(restButton);
 												
 												addPlatformButton = new JButton("Add");
 												addPlatformButton.setBounds(305, 127, 80, 25);
@@ -383,6 +416,15 @@ public class Main extends JFrame implements ActionListener {
 												addLanguageButton = new JButton("Add");
 												addLanguageButton.setBounds(305, 188, 80, 25);
 												getContentPane().add(addLanguageButton);
+												
+												JLabel themeLabel = new JLabel("Theme");
+												themeLabel.setForeground(SystemColor.text);
+												themeLabel.setBounds(294, 12, 70, 15);
+												getContentPane().add(themeLabel);
+												
+												themeBox = new JComboBox();
+												themeBox.setBounds(348, 7, 80, 24);
+												getContentPane().add(themeBox);
 		restButton.addActionListener(this);
 		pauseButton.addActionListener(this);
 		stopButton.addActionListener(this);
@@ -409,6 +451,12 @@ public class Main extends JFrame implements ActionListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		themeBox.addItem("Dark");
+		themeBox.addItem("Light");
+		themeBox.setSelectedItem("Dark");
+		String defaultTheme = (String) themeBox.getSelectedItem();
+		setTheme(defaultTheme);
+		themeBox.addActionListener(this);
 	}
 	/**
 	 * Initializes the data that needs to be initialized in every session
@@ -439,7 +487,7 @@ public class Main extends JFrame implements ActionListener {
 		pauseDuration = 0;
 	}
 
-	JPanel panel_1;
+	JPanel timerPanel;
 
 	/**
 	 * The logic for rest, creates the JFrame and then adds event listeners
@@ -598,7 +646,7 @@ public class Main extends JFrame implements ActionListener {
 	/**
 	 * Sends the session to the database
 	 */
-	void sendToDB() {
+	public void sendToDB() {
 		
 		for (Entry<Integer, String> entry: typeMap.entrySet()) {
 			
@@ -658,7 +706,7 @@ public class Main extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(null,"Session ended and recorded successfully.");
 		} catch (SQLException ex) {
 
-			File error = new File("error.log");
+			File error = new File(path+"/source/error.log");
 			if(!error.exists()) {
 				try {
 					error.createNewFile();
@@ -901,6 +949,10 @@ public class Main extends JFrame implements ActionListener {
 				e1.printStackTrace();
 			}
 	}
+		if (e.getSource() == themeBox) {
+			System.out.println((String)themeBox.getSelectedItem());
+			setTheme((String)themeBox.getSelectedItem());
+		}
 		if (e.getSource() == addLanguageButton) {
 			
 			while (true) {
@@ -1080,7 +1132,7 @@ public class Main extends JFrame implements ActionListener {
 	JLabel timeLabel;
 	JButton startButton;
 	JButton stopButton;
-	private JLabel lblNewLabel_3;
+	private JLabel subjectLabel;
 	private JComboBox subjectBox;
 	String platform;
 	String subject;
@@ -1132,5 +1184,8 @@ public class Main extends JFrame implements ActionListener {
 	JComboBox typeBox;
 	JButton startDayButton;
 	JButton endDayButton;
-
+	JLabel typeLabel;
+	JLabel languageLabel;
+	JLabel platformLabel;
+	JLabel upSkillLabel;
 }

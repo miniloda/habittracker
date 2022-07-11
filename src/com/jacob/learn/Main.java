@@ -360,34 +360,34 @@ public class Main extends JFrame implements ActionListener {
 		addTypeButton.setBounds(305, 96, 80, 25);
 		getContentPane().add(addTypeButton);
 		
-				panel_1 = new JPanel();
-				panel_1.setBounds(89, 248, 262, 222);
-				getContentPane().add(panel_1);
-				panel_1.setBackground(Color.LIGHT_GRAY);
-				panel_1.setLayout(null);
+				timerPanel = new JPanel();
+				timerPanel.setBounds(89, 248, 262, 222);
+				getContentPane().add(timerPanel);
+				timerPanel.setBackground(Color.LIGHT_GRAY);
+				timerPanel.setLayout(null);
 				
 						startButton = new JButton("Start");
-						startButton.setBounds(30, 138, 89, 23);
-						panel_1.add(startButton);
+						startButton.setBounds(42, 138, 89, 23);
+						timerPanel.add(startButton);
 						startButton.addActionListener(this);
 						timeLabel = new JLabel("");
 						timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 						timeLabel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 						timeLabel.setFont(new Font("Verdana", Font.PLAIN, 35));
 						timeLabel.setBounds(42, 32, 184, 91);
-						panel_1.add(timeLabel);
+						timerPanel.add(timeLabel);
 						stopButton = new JButton("Stop");
-						stopButton.setBounds(129, 138, 89, 23);
-						panel_1.add(stopButton);
+						stopButton.setBounds(137, 138, 89, 23);
+						timerPanel.add(stopButton);
 						
 								pauseButton = new JButton("Pause");
-								pauseButton.setBounds(30, 169, 89, 23);
-								panel_1.add(pauseButton);
+								pauseButton.setBounds(42, 173, 89, 23);
+								timerPanel.add(pauseButton);
 								
 										restButton = new JButton("Rest");
-										restButton.setBounds(129, 169, 89, 23);
+										restButton.setBounds(137, 173, 89, 23);
 										
-												panel_1.add(restButton);
+												timerPanel.add(restButton);
 												
 												addPlatformButton = new JButton("Add");
 												addPlatformButton.setBounds(305, 127, 80, 25);
@@ -471,7 +471,7 @@ public class Main extends JFrame implements ActionListener {
 		pauseDuration = 0;
 	}
 
-	JPanel panel_1;
+	JPanel timerPanel;
 
 	/**
 	 * The logic for rest, creates the JFrame and then adds event listeners

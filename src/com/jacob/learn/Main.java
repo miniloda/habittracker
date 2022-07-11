@@ -95,12 +95,28 @@ public class Main extends JFrame implements ActionListener {
 	}
 	File db;
 	boolean firstinit = false;
-	
+	public String generatePath ()  throws Exception{
+		return new File(Main.class.getProtectionDomain().getCodeSource().getLocation()
+			    .toURI()).getPath();
+	}
+	String path = "~";
 	/**
 	 * Creates the sqlite.db file
 	 */
 	public void writeDBFile() {
-		 db = new File("historytracker.db");
+		
+		
+		try {
+			path = generatePath();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		File theDir = new File(path+"/source");
+		if (!theDir.exists()){
+		    theDir.mkdirs();
+		}
+		 db = new File(path+"/source/historytracker.db");
 		 if(!checkDBExists()) {
 			try {
 				db.createNewFile();
@@ -630,7 +646,7 @@ public class Main extends JFrame implements ActionListener {
 	/**
 	 * Sends the session to the database
 	 */
-	void sendToDB() {
+	public void sendToDB() {
 		
 		for (Entry<Integer, String> entry: typeMap.entrySet()) {
 			
@@ -690,7 +706,7 @@ public class Main extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(null,"Session ended and recorded successfully.");
 		} catch (SQLException ex) {
 
-			File error = new File("error.log");
+			File error = new File(path+"/source/error.log");
 			if(!error.exists()) {
 				try {
 					error.createNewFile();
